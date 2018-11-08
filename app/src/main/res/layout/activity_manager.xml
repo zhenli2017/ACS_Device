@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_bg"
+    android:orientation="vertical"
+    tools:context="com.thdtek.acs.terminal.ui.manage.ManagerActivity">
+
+    <include layout="@layout/include_toolbar"/>
+
+    <Button
+        android:id="@+id/btn_server_setting"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_57dp"
+        android:layout_marginTop="@dimen/dimen_88dp"
+        android:background="@drawable/shape_server_btn_bg"
+        android:text="@string/manage_setting"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_18sp"/>
+
+
+    <!--<Button-->
+    <!--android:id="@+id/btn_client_setting"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="@dimen/dimen_57dp"-->
+    <!--android:layout_marginTop="@dimen/dimen_32dp"-->
+    <!--android:background="@drawable/shape_server_btn_bg"-->
+    <!--android:text="@string/manage_client_setting"-->
+    <!--android:textColor="@color/white"-->
+    <!--android:textSize="@dimen/dimen_18sp"/>-->
+
+    <Button
+        android:id="@+id/btn_system_setting"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_57dp"
+        android:layout_marginTop="@dimen/dimen_32dp"
+        android:background="@drawable/shape_server_btn_bg"
+        android:text="@string/manage_system_setting"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_18sp"/>
+
+    <Button
+        android:id="@+id/btn_old"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_57dp"
+        android:layout_marginTop="@dimen/dimen_32dp"
+        android:background="@drawable/shape_server_btn_bg"
+        android:text="@string/old_math"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_18sp"/>
+    <Button
+        android:id="@+id/btn_yuntianlifei"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_57dp"
+        android:layout_marginTop="@dimen/dimen_32dp"
+        android:background="@drawable/shape_server_btn_bg"
+        android:text="@string/yuntianlifei"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_18sp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_32dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_open"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_45dp"
+            android:layout_marginLeft="@dimen/dimen_5dp"
+            android:layout_marginTop="@dimen/dimen_32dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_manager_btn_bg"
+            android:text="@string/manage_open"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+    </LinearLayout>
+
+</LinearLayout>

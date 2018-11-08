@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.thdtek.acs.terminal.ui.main.MainActivity2">
+
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:layout_marginTop="75px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </FrameLayout>
+
+    <com.thdtek.acs.terminal.view.CircleFaceView2
+        android:id="@+id/drawRectView"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:layout_marginTop="75px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/image_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="17px"
+        android:layout_marginTop="20px"
+        android:maxLines="1"
+        android:text="@string/title"
+        android:textColor="@color/color_name"
+        android:textSize="38px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+        android:id="@+id/view_connect"
+        android:layout_width="12px"
+        android:layout_height="12px"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="right"
+        android:layout_marginRight="30px"
+        android:layout_marginTop="675px"
+        android:background="@drawable/shape_main_circle"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+        android:id="@+id/view_mid"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <TextView
+        android:id="@+id/tv_mid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="665px"
+        android:gravity="center"
+        android:textColor="@color/color_success"
+        android:textSize="36px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <ImageView
+        android:id="@+id/image_weather"
+        android:layout_width="83px"
+        android:layout_height="80px"
+
+        android:layout_marginLeft="75px"
+        android:layout_marginTop="110px"
+        android:scaleType="fitXY"
+        android:src="@mipmap/d00"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_mid"/>
+
+    <TextView
+        android:id="@+id/tv_c"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:shadowColor="@color/black"
+        android:shadowDy="6"
+        android:shadowRadius="10"
+        android:text="   /  ---"
+        android:textColor="@color/white"
+        android:textSize="48px"
+        app:layout_constraintBottom_toBottomOf="@id/image_weather"
+        app:layout_constraintLeft_toRightOf="@id/image_weather"
+        app:layout_constraintTop_toTopOf="@id/image_weather"/>
+
+    <Chronometer
+        android:id="@+id/tv_time_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45px"
+        android:layerType="software"
+        android:shadowColor="@color/black"
+        android:shadowDy="6"
+        android:shadowRadius="10"
+        android:textColor="@color/white"
+        android:textSize="64px"
+        app:layout_constraintLeft_toLeftOf="@id/image_weather"
+        app:layout_constraintTop_toBottomOf="@id/image_weather"/>
+
+
+    <TextView
+        android:id="@+id/tv_time_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5px"
+        android:layout_marginTop="45px"
+        android:shadowColor="@color/black"
+        android:shadowDy="6"
+        android:shadowRadius="10"
+        android:textColor="@color/color_name"
+        android:textSize="36px"
+        app:layout_constraintLeft_toLeftOf="@id/tv_time_hour"
+        app:layout_constraintTop_toBottomOf="@id/tv_time_hour"/>
+
+    <TextView
+        android:id="@+id/tv_time_week"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15px"
+        android:shadowColor="@color/black"
+        android:shadowDy="6"
+        android:shadowRadius="10"
+        android:textColor="@color/color_name"
+        android:textSize="36px"
+        app:layout_constraintBottom_toBottomOf="@id/tv_time_date"
+        app:layout_constraintLeft_toRightOf="@id/tv_time_date"
+        app:layout_constraintTop_toTopOf="@id/tv_time_date"/>
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60px"
+        android:layout_marginTop="140px"
+        app:layout_constraintLeft_toRightOf="@id/view_mid"
+        app:layout_constraintTop_toBottomOf="@id/tv_mid"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="AAA.json"
+        app:lottie_imageAssetsFolder="images"
+        app:lottie_loop="true"/>
+
+    <ImageView
+        android:id="@+id/iv_pair_fail"
+        android:layout_width="254px"
+        android:layout_height="245px"
+        app:layout_constraintLeft_toLeftOf="@id/lottie"
+        android:layout_marginTop="140px"
+        android:src="@mipmap/ic_pair_fail"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tv_mid"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_pairing"
+        android:layout_width="254px"
+        android:layout_height="245px"
+        android:layout_marginTop="140px"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="@id/lottie"
+        app:layout_constraintTop_toBottomOf="@id/tv_mid">
+
+        <com.thdtek.acs.terminal.view.CircleView
+
+            android:id="@+id/customView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/ic_pairing"/>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/line_Person"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="@id/lottie"
+        app:layout_constraintTop_toBottomOf="@id/tv_mid">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="13px"
+            android:layout_marginTop="77px"
+            android:gravity="center"
+            android:text="@string/text_default"
+            android:textColor="@color/color_name"
+            android:textSize="36px"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_person_bg"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/circleImageView"
+                android:layout_width="194px"
+                android:layout_height="194px"
+                android:layout_marginLeft="56px"
+                android:layout_marginTop="12px"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_photo_default"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_work_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@mipmap/ic_work_id_bg"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/color_name"
+            android:textSize="24px"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_down_load_person"
+        android:layout_width="wrap_content"
+        android:layout_height="80px"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10px"
+        android:layout_marginRight="10px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:gravity="center"
+        android:paddingLeft="15px"
+        android:paddingRight="15px"
+        android:text="@string/down_load_person"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/pb"
+        style="@style/InitProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+</android.support.constraint.ConstraintLayout>

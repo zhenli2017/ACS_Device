@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_bg"
+    android:orientation="vertical"
+    tools:context="com.thdtek.acs.terminal.ui.network.NetworkActivity">
+
+    <include layout="@layout/include_toolbar"/>
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_45dp"
+        android:layout_margin="@dimen/dimen_20dp"
+        android:background="@drawable/shale_radius_4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dimen_18dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/network_ip"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+        <TextView
+            android:id="@+id/tv_network_type"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="@dimen/dimen_30dp"
+            android:paddingRight="@dimen/dimen_6dp"
+            android:text="@string/text_default"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+        <ImageView
+            android:id="@+id/iv_popup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="@dimen/dimen_5dp"
+            android:src="@drawable/ic_down"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/line_static"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_38dp"
+            android:text="@string/network_ip_address"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+        <com.thdtek.acs.terminal.view.CustomEditText
+            android:id="@+id/et_ipAddress"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_55dp"
+            android:layout_marginLeft="@dimen/dimen_20dp"
+            android:layout_marginRight="@dimen/dimen_20dp"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:background="@null"
+            android:backgroundTint="@color/color_et_bg"
+            android:paddingLeft="@dimen/dimen_18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_38dp"
+            android:layout_marginTop="@dimen/dimen_18dp"
+            android:text="@string/network_gateway"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+
+        <com.thdtek.acs.terminal.view.CustomEditText
+            android:id="@+id/et_gateway"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_55dp"
+            android:layout_marginLeft="@dimen/dimen_20dp"
+            android:layout_marginRight="@dimen/dimen_20dp"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:background="@null"
+            android:paddingLeft="@dimen/dimen_18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_38dp"
+            android:layout_marginTop="@dimen/dimen_18dp"
+            android:text="@string/network_dns"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+        <com.thdtek.acs.terminal.view.CustomEditText
+            android:id="@+id/et_dns"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_55dp"
+            android:layout_marginLeft="@dimen/dimen_20dp"
+            android:layout_marginRight="@dimen/dimen_20dp"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:background="@null"
+            android:paddingLeft="@dimen/dimen_18dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
+
+        <View
+            android:layout_width="0px"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@drawable/shape_system_list_view_divier"
+        android:paddingLeft="@dimen/dimen_30dp"
+        android:paddingRight="@dimen/dimen_30dp"
+        android:scrollbars="none"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dimen_43dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_45dp"
+            android:layout_marginLeft="@dimen/dimen_46dp"
+            android:layout_marginRight="@dimen/dimen_18dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_network_btn_bg"
+            android:text="@string/network_cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_45dp"
+            android:layout_marginRight="@dimen/dimen_46dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_network_btn_bg"
+            android:text="@string/network_save"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dimen_18sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

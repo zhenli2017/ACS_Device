@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ACS</string>
+    <string name="manage_setting">設置</string>
+    <string name="manage_network_setting">網絡參數設置</string>
+    <string name="manage_system_setting">系統參數查看</string>
+    <string name="manage_open">開閘</string>
+    <string name="manage_close">關閘</string>
+    <string name="manage_title">管理員功能</string>
+    <string name="server_ip_or_">IP地址或域名</string>
+    <string name="server_port">端口號</string>
+    <string name="server_connect_test">連接</string>
+    <string name="server_title">設置</string>
+    <string name="network_ip">IP</string>
+    <string name="network_ip_address">IP地址</string>
+    <string name="text_default">---</string>
+    <string name="network_gateway">網關</string>
+    <string name="network_mask">子網掩碼</string>
+    <string name="network_dns">DNS</string>
+    <string name="network_title">網絡設置</string>
+    <string name="network_save">保存配置</string>
+    <string name="system_title">系統信息</string>
+    <string name="main_permission_request">權限請求</string>
+    <string name="main_permission_agree">同意</string>
+    <string name="main_permission_denied">不同意</string>
+    <string name="main_permission_not_enough">權限不足</string>
+    <string name="server_connect_cancel">取消</string>
+    <string name="network_cancel">取消</string>
+    <string name="network_static">靜態</string>
+    <string name="network_dhcp">DHCP</string>
+    <string name="main_wait_pair">等待識別...</string>
+    <string name="server_device_name">設備名稱</string>
+    <string name="manage_client_setting">客戶端設置</string>
+    <string name="client_title_name">設置首頁標題</string>
+    <string name="wifiOn">wifi on</string>
+    <string name="wifiOff">wifi off</string>
+    <string name="pair_success">識別成功</string>
+    <string name="person_name">姓名 : </string>
+    <string name="worker_number">卡號 : </string>
+    <string name="device_sn">設備 SN</string>
+    <string name="server_ip">服務器IP地址</string>
+    <string name="server_port_">服務器端口</string>
+    <string name="face_pair_number">特征值對比閾值</string>
+    <string name="face_pair_type">當前檢測方式</string>
+    <string name="pair_success_wait_time">檢測成功或失敗後的暫停時間(毫秒)</string>
+    <string name="open_door_type">開門條件</string>
+    <string name="open_door_conitue_time">開門持續時間(毫秒)</string>
+    <string name="open_door">開門鎖類型</string>
+    <string name="device_support_time">設備維護時間</string>
+    <string name="device_in_or_out">設備進出類型</string>
+    <string name="welcome_message">歡迎信息</string>
+    <string name="ji_dian_qi">繼電器</string>
+    <string name="wg">维根</string>
+    <string name="app_max_memory">APP最大内存</string>
+    <string name="app_use_memory">APP已經分配的內存</string>
+    <string name="system_version">當前系統版本</string>
+    <string name="app_version">APP版本</string>
+    <string name="device_register_time">設備註冊時間</string>
+    <string name="device_open_conitue_time">設備開機後到現在時間</string>
+    <string name="device_people_size">登記人數</string>
+    <string name="in">進</string>
+    <string name="out">出</string>
+    <string name="hour">小時</string>
+    <string name="face_and_id">人臉+身份證</string>
+    <string name="worke_id">工號</string>
+    <string name="face_and_ic">人臉+工號</string>
+    <string name="face">人臉</string>
+    <string name="alive">活體檢測</string>
+    <string name="not_alive">非活體檢測</string>
+    <string name="pair_fail">識別失敗</string>
+    <string name="pairing">正在識別</string>
+
+    <string name="main_title">首頁標題</string>
+    <string name="down_load_person">正在下載人員信息</string>
+    <string name="down_load_person_end">下載人員信息完畢</string>
+    <string name="current_open_door_type">當前開門方式是繼電器</string>
+    <string name="title">人臉識別系統</string>
+
+    <string name="down_video">正在下載視頻</string>
+
+    <string name="yuntianlifei">算法1.1</string>
+    <string name="old_math">算法1.0</string>
+    <string name="toast_hongtuan">當前算法是 算法1.0</string>
+    <string name="toast_yuntianlifei">當前算法是 算法1.1</string>
+
+    <string name="license_down_fail">License 下載失敗</string>
+    <string name="less_license">缺少 License</string>
+    <string name="license_down_loading">正在準備下載 License 文件,請稍後</string>
+    <string-array name="spinner_arr">
+        <item>靜態</item>
+        <item>DHCP</item>
+    </string-array>
+
+
+    <string name="msg_down_success">信息下載成功 : </string>
+    <string name="msg_down_fail">信息下載失敗 : </string>
+    <string name="device_ini">程序初始化,請稍後...</string>
+    <string name="device_init_finish">程序初始化結束</string>
+    <string name="down_msg_person">下載人員信息 : </string>
+
+    <string name="delete_person">正在刪除人員,請稍後...</string>
+    <string name="down_load_authority">正在下人員權限 :</string>
+
+
+    <string name="sdk_init_0">程序初始化 : IFACE_RECSDK_INIT</string>
+    <string name="sdk_init_1">程序初始化 : IFACE_RECSDK_CAPTURER_CREATE</string>
+    <string name="sdk_init_2">程序初始化 : IFACE_RECSDK_DETECT_CREATE</string>
+    <string name="sdk_init_3">程序初始化 : IFACE_RECSDK_EXTRACT_CREATE</string>
+    <string name="sdk_init_4">程序初始化 : IFACE_RECSDK_COMPARE_CREATE</string>
+    <string name="sdk_init_5">程序初始化 : IFACE_RECSDK_PREDICTOR_CREATE</string>
+    <string name="sdk_init_6">程序初始化 : IFACE_1.0</string>
+    <string name="sdk_init_7">程序初始化 : IFACE_PAIR_THREAD_ONE</string>
+    <string name="sdk_init_8">程序初始化 : IFACE_PAIR_THREAD_TWO</string>
+    <string name="sdk_init_9">程序初始化 : IFACE_PAIR_THREAD_THREE</string>
+    <string name="sdk_init_10">程序初始化 : IFACE_NETWORK_SERVICE</string>
+    <string name="sdk_init_11">程序初始化 : IFACE_SERIAL_SERVICE</string>
+
+
+
+</resources>

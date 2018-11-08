@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_bg"
+    android:orientation="vertical"
+    tools:context="com.thdtek.acs.terminal.ui.server.ServerSettingActivity">
+
+    <include layout="@layout/include_toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/dimen_15dp"
+                android:layout_height="wrap_content">
+                <com.thdtek.acs.terminal.view.CustomEditText
+                    android:id="@+id/et_main_title"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_height="@dimen/dimen_55dp"
+                    android:layout_marginLeft="@dimen/dimen_20dp"
+                    android:layout_marginRight="@dimen/dimen_10dp"
+                    android:background="@null"
+                    android:paddingLeft="@dimen/dimen_17dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"/>
+                <Button
+                    android:id="@+id/btn_set_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dimen_45dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:background="@drawable/shape_server_btn_bg"
+                    android:text="@string/client_title_name"
+                    android:paddingLeft="@dimen/dimen_10dp"
+                    android:paddingRight="@dimen/dimen_10dp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_18sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_socket"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dimen_10dp"
+                    android:layout_marginLeft="@dimen/dimen_37dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_30dp"
+                    android:text="@string/server_device_name"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_18sp"/>
+
+                <com.thdtek.acs.terminal.view.CustomEditText
+                    android:id="@+id/et_device_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_55dp"
+                    android:layout_marginLeft="@dimen/dimen_20dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_10dp"
+                    android:background="@null"
+
+                    android:paddingLeft="@dimen/dimen_17dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dimen_10dp"
+                    android:layout_marginLeft="@dimen/dimen_37dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_23dp"
+                    android:text="@string/server_ip_or_"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_18sp"/>
+
+                <com.thdtek.acs.terminal.view.CustomEditText
+                    android:id="@+id/et_ip_or"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_55dp"
+                    android:layout_marginLeft="@dimen/dimen_20dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_10dp"
+                    android:background="@null"
+
+                    android:paddingLeft="@dimen/dimen_17dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dimen_10dp"
+                    android:layout_marginLeft="@dimen/dimen_37dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_23dp"
+                    android:text="@string/server_port"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_18sp"/>
+
+                <com.thdtek.acs.terminal.view.CustomEditText
+                    android:id="@+id/et_port"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_55dp"
+                    android:layout_marginLeft="@dimen/dimen_20dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:background="@null"
+                    android:inputType="number"
+                    android:paddingLeft="@dimen/dimen_17dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"/>
+
+
+                <Button
+                    android:id="@+id/btn_connect_test"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_45dp"
+                    android:layout_marginLeft="@dimen/dimen_20dp"
+                    android:layout_marginRight="@dimen/dimen_20dp"
+                    android:layout_marginTop="@dimen/dimen_30dp"
+                    android:background="@drawable/shape_server_btn_bg"
+                    android:text="@string/server_connect_test"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/dimen_18sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

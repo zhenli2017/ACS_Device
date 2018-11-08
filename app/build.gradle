@@ -1,0 +1,116 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'com.google.protobuf'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.thdtek.acs.terminal"
+        minSdkVersion 22
+        targetSdkVersion 26
+        versionCode 114
+        versionName "1.1.114"
+        multiDexEnabled = true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a', "x86"
+        }
+    }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs', 'src/main/java', 'src/main/aidl']
+            proto {
+                //main目录新建proto目录
+                srcDir 'src/main/proto'
+                include '**/*.proto'
+            }
+            java {
+                srcDir 'src/main/java'
+            }
+
+        }
+    }
+}
+greendao {
+    schemaVersion 28
+    daoPackage 'greendao'
+    targetGenDir 'src/main/java'
+}
+//构建task
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.1.0'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.builtins {
+                java {}
+            }
+        }
+    }
+    //生成目录
+//    generatedFilesBaseDir = "$projectDir/src/generated"
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    //https://github.com/greenrobot/greenDAO
+    compile 'org.greenrobot:greendao:3.0.0'
+    compile 'com.android.support:multidex:1.0.3'
+    //glide
+    compile 'com.github.bumptech.glide:glide:3.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.0'
+    implementation files('libs/log4j-1.2.17.jar')
+    implementation files('libs/android-logging-log4j-1.0.3.jar')
+    //权限处理,无法放在baseLibrary中,不会生成默认的类,https://github.com/permissions-dispatcher/PermissionsDispatcher
+    compile('com.github.hotchemi:permissionsdispatcher:3.1.0') {
+        // if you don't use android.app.Fragment you can exclude support for them
+        exclude module: "support-v13"
+    }
+    annotationProcessor 'com.github.hotchemi:permissionsdispatcher-processor:2.4.0'
+    compile 'com.afollestad.material-dialogs:commons:0.9.5.0'
+    compile 'com.facebook.stetho:stetho:1.5.0'
+    //protobuf
+    compile 'com.google.protobuf:protobuf-java:3.5.0'
+    compile 'com.google.protobuf:protoc:3.1.0'
+    compile 'com.google.protobuf:protobuf-java-util:3.5.0'
+    compile 'com.tencent.bugly:crashreport:2.6.6'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'com.airbnb.android:lottie:2.5.5'
+    implementation 'org.nanohttpd:nanohttpd:2.2.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.koushikdutta.async:androidasync:2.+'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation files('libs/android_inner_clazz.jar')
+    api(name: 'facelibrary-release', ext: 'aar')
+    api(name: 'iface-release', ext: 'aar')
+    api(name: 'downloadLicense-release', ext: 'aar')
+    implementation files('libs/szwislink.jar')
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation files('libs/commons-io-2.6.jar')
+}

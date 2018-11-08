@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="1370px"
+            android:layout_height="1030px"
+            android:layout_marginLeft="-388px">
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <com.thdtek.acs.terminal.view.CircleFaceView2
+            android:id="@+id/drawRectView"
+            android:layout_width="1370px"
+            android:layout_height="1030px"
+            android:layout_marginLeft="-388px"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16px"
+        android:layout_marginTop="16px"
+        android:maxLines="1"
+        android:text="@string/title"
+        android:textColor="@color/color_name"
+        android:textSize="30px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/line_bg"
+        android:layout_width="0dp"
+        android:layout_height="160px"
+        android:background="@color/color_pair_msg"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+    </LinearLayout>
+
+
+    <Chronometer
+        android:id="@+id/tv_time_hour"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12px"
+        android:gravity="center"
+        android:layerType="software"
+        android:textColor="@color/white"
+        android:textSize="50px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/line_bg"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15px"
+        android:gravity="center_vertical|center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/image_weather"
+            android:layout_width="64px"
+            android:layout_height="63px"
+            android:layout_marginLeft="4px"
+            android:scaleType="fitXY"
+            android:src="@mipmap/d00"
+            />
+
+        <TextView
+            android:id="@+id/tv_c"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="   /  ---"
+            android:textColor="@color/white"
+            android:textSize="37px"
+            app:layout_constraintLeft_toRightOf="@id/image_weather"
+            app:layout_constraintTop_toTopOf="@id/image_weather"/>
+
+        <TextView
+            android:id="@+id/tv_time_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35px"
+            android:text="@string/text_default"
+            android:textColor="@color/color_name"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_time_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35px"
+            android:text="@string/text_default"
+            android:textColor="@color/color_name"
+            android:textSize="28px"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_success"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:paddingBottom="12px"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:paddingTop="12px"
+        android:text="@string/pair_success"
+        android:textColor="@color/color_scan"
+        android:textSize="20px"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/circleImageView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <View
+        android:id="@+id/view_center"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/circleImageView"
+        android:layout_width="146px"
+        android:layout_height="146px"
+        android:layout_marginBottom="24px"
+        android:layout_marginRight="20px"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_photo_default"
+        android:visibility="invisible"
+        app:civ_border_color="@color/color_scan"
+        app:civ_border_width="4px"
+        app:layout_constraintBottom_toTopOf="@id/line_bg"
+        app:layout_constraintRight_toLeftOf="@id/view_center"/>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:textColor="@color/color_name"
+        android:textSize="24px"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/circleImageView"
+        app:layout_constraintLeft_toRightOf="@id/view_center"
+        app:layout_constraintTop_toTopOf="@id/circleImageView"
+        app:layout_constraintVertical_bias="0.3"/>
+
+
+    <TextView
+        android:id="@+id/tv_work_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="20px"
+        android:gravity="center"
+        android:textColor="@color/color_name"
+        android:textSize="24px"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/circleImageView"
+        app:layout_constraintLeft_toRightOf="@id/view_center"
+        app:layout_constraintTop_toTopOf="@id/circleImageView"
+        app:layout_constraintVertical_bias="0.7"/>
+
+    <TextView
+        android:id="@+id/tv_other"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:paddingBottom="12px"
+        android:paddingLeft="30px"
+        android:paddingRight="30px"
+        android:paddingTop="12px"
+        android:textColor="@color/color_scan"
+
+        android:textSize="21px"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/line_bg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <View
+        android:id="@+id/view_connect"
+        android:layout_width="12px"
+        android:layout_height="12px"
+        android:layout_marginRight="15px"
+        android:layout_marginTop="15px"
+        android:background="@color/black"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/line_bg"/>
+
+    <TextView
+        android:id="@+id/tv_down_load_person"
+        android:layout_width="wrap_content"
+        android:layout_height="60px"
+        android:layout_marginBottom="10px"
+        android:layout_marginRight="10px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:gravity="center"
+        android:paddingLeft="15px"
+        android:paddingRight="15px"
+        android:text="@string/down_load_person"
+        android:textColor="@color/color_scan"
+        android:textSize="23px"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/pb"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/pb"
+        style="@style/InitProgressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/line_bg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+
+</android.support.constraint.ConstraintLayout>

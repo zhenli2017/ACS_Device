@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#566176</color>
+    <color name="colorPrimaryDark">#566176</color>
+    <color name="colorAccent">#566176</color>
+
+
+    <color name="gray">#DCDCDC</color>
+    <color name="black">#ff000000</color>
+    <color name="black_40">#6c000000</color>
+    <color name="black_alpha_200">#c8000000</color>
+    <color name="green">#00ff00</color>
+    <color name="red">#ff0000</color>
+    <color name="blue">#0000ff</color>
+    <color name="white">#ffffff</color>
+    <color name="white_alpha">#99ffffff</color>
+    <color name="yellow">#fbff00</color>
+    <color name="transparent">#00000000</color>
+    <color name="color_success">#15E9A4</color>
+    <color name="color_scan">#15E9A4</color>
+    <color name="color_name">#15E9A4</color>
+    <color name="color_circle">#00b7ee</color>
+
+    <color name="color_start">#0015E9A4</color>
+    <color name="color_middle">#5015E9A4</color>
+    <color name="color_end">#ff15E9A4</color>
+
+    <color name="color_bg">#181C25</color>
+    <color name="color_btn_bg">#1F242E</color>
+    <color name="color_toolbar_start">#566176</color>
+    <color name="color_toolbar_end">#2B3241</color>
+    <color name="color_manager_btn_start">#06ABFD</color>
+    <color name="color_manager_btn_end">#1A6C93</color>
+    <color name="color_server_btn_start">#566176</color>
+    <color name="color_server_btn_end">#2B3241</color>
+    <color name="color_et_bg">#292F3B</color>
+    <color name="color_system_listView">#979797</color>
+
+    <color name="color_pair_msg">#961b1b1b</color>
+</resources>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="816px"
+        android:layout_height="610px">
+
+    </FrameLayout>
+
+    <!--<com.thdtek.acs.terminal.view.CircleFaceView2-->
+        <!--android:id="@+id/circleFaceView"-->
+        <!--android:layout_width="816px"-->
+        <!--android:layout_height="610px"/> -->
+    <com.thdtek.acs.terminal.view.RectView
+        android:id="@+id/circleFaceView"
+        android:layout_width="816px"
+        android:layout_height="610px"/>
+
+    <View
+        android:layout_width="816px"
+        android:layout_height="90px"
+        android:background="@color/color_pair_msg"
+        app:layout_constraintBottom_toBottomOf="@id/tv_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:layout_marginTop="20px"
+        android:maxLines="1"
+        android:text="@string/title"
+        android:textColor="@color/color_name"
+        android:textSize="38px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <Chronometer
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="20px"
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="38px"
+        app:layout_constraintRight_toRightOf="@id/frameLayout"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:paddingBottom="10px"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        android:paddingTop="10px"
+        android:textSize="34px"
+        android:textColor="@color/color_scan"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/frameLayout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@id/frameLayout"/>
+
+    <TextView
+        android:id="@+id/tv_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:paddingBottom="10px"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        android:textSize="34px"
+        android:paddingTop="10px"
+        android:textColor="@color/color_scan"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/frameLayout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@id/frameLayout"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/circleImageView"
+        android:layout_width="150px"
+        android:layout_height="150px"
+        android:layout_marginBottom="10px"
+        android:visibility="invisible"
+        app:civ_border_color="@color/color_scan"
+        app:civ_border_width="5px"
+        app:layout_constraintBottom_toTopOf="@id/tv_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@id/frameLayout"/>
+
+    <ImageView
+        android:layout_width="816px"
+        android:id="@+id/iv_loading"
+        android:scaleType="fitXY"
+        android:visibility="invisible"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="245px"
+        android:layout_height="610px"/>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPagerOne"
+        android:layout_width="816px"
+        android:layout_height="450px"
+        android:layout_marginTop="20px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/frameLayout">
+
+
+    </android.support.v4.view.ViewPager>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPagerTwo"
+        android:layout_width="1084px"
+        android:layout_height="450px"
+        android:layout_marginLeft="20px"
+        app:layout_constraintBottom_toBottomOf="@id/viewPagerOne"
+        app:layout_constraintLeft_toRightOf="@id/viewPagerOne">
+
+    </android.support.v4.view.ViewPager>
+
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="1084px"
+        android:layout_height="610px"
+        android:layout_marginLeft="20px"
+        app:layout_constraintLeft_toRightOf="@id/frameLayout"
+        app:layout_constraintTop_toTopOf="@id/frameLayout"/>
+
+    <ImageView
+        android:id="@+id/iv_temp_image"
+        android:layout_width="1084px"
+        android:layout_height="610px"
+        android:background="@color/colorAccent"
+        android:scaleType="centerCrop"
+        app:layout_constraintLeft_toLeftOf="@id/videoView"/>
+
+    <TextView
+        android:id="@+id/tv_down_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/down_video"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/videoView"
+        app:layout_constraintRight_toRightOf="@id/videoView"/>
+
+
+    <TextView
+        android:id="@+id/tv_down_load_person"
+        android:layout_width="wrap_content"
+        android:layout_height="80px"
+        android:layout_marginBottom="10px"
+        android:layout_marginRight="10px"
+        android:background="@drawable/shape_main_pair_mseeage_bg"
+        android:gravity="center"
+        android:paddingLeft="15px"
+        android:paddingRight="15px"
+        android:text="@string/down_load_person"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/pb"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/pb"
+        style="@style/InitProgressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/iv_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</android.support.constraint.ConstraintLayout>

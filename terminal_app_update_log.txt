@@ -1,0 +1,28 @@
+================================本文件用于打包注意事项提示==========================
+1.Const.IS_OPEN_SSL
+2.Const.IS_OPEN_DYNAMIC_AESKEY
+3.Const.IS_OPEN_AUTO_UPLOAD_PASS_RECORD
+4.Const.IS_OPEN_HTTP_MODE
+4.Const.IS_OPEN_SOCKET_MODE
+4.manifests/android:sharedUserId="android.uid.system"
+5.数据库版本是否修改
+6.versionCode、versionName是否修改
+
+1.1.103
+	APP稳定版本
+
+1.1.104(Http模式)
+    1.添加已经登记的访客模式
+    2.英泽人员下发,图片下发,流水拉取
+    3.注册人员权限判断,10000 次不减少
+    4.适配720*1280的屏幕
+
+1.1.105
+    1.云天励飞算法初始化在主线程(在子线程会崩溃)(需要测试)
+    2.访客模式,单刷人脸可以通过
+
+1.1.106
+    1.sdk初始化延时
+
+1.1.110
+    1.添加人员时间段权限管理
