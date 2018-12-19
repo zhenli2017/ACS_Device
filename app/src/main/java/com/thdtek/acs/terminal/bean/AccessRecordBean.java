@@ -37,6 +37,49 @@ public class AccessRecordBean {
     private boolean uploadToHttp;
     //对应http的personId
     private String fid;
+
+    private String gender;
+    private String birthday;
+    private String location;
+    private String validityTime;
+    private String signingOrganization;
+    private String nation;
+    public String getNation() {
+        return this.nation;
+    }
+    public void setNation(String nation) {
+        this.nation = nation;
+    }
+    public String getSigningOrganization() {
+        return this.signingOrganization;
+    }
+    public void setSigningOrganization(String signingOrganization) {
+        this.signingOrganization = signingOrganization;
+    }
+    public String getValidityTime() {
+        return this.validityTime;
+    }
+    public void setValidityTime(String validityTime) {
+        this.validityTime = validityTime;
+    }
+    public String getLocation() {
+        return this.location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    public String getBirthday() {
+        return this.birthday;
+    }
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+    public String getGender() {
+        return this.gender;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
     public String getFid() {
         return this.fid;
     }
@@ -145,13 +188,14 @@ public class AccessRecordBean {
     public void setId(Long id) {
         this.id = id;
     }
-    @Generated(hash = 717574129)
+    @Generated(hash = 1817076458)
     public AccessRecordBean(Long id, long time, int accessSuccessful, int type,
             String accessImage, long personId, long authorityId, String cardNum,
             String idNum, String personImage, String personName,
             float defaultFaceFeatureNumber, float currentFaceFeatureNumber,
             long count, float personRate, float accordRate, boolean uploadToHttp,
-            String fid) {
+            String fid, String gender, String birthday, String location,
+            String validityTime, String signingOrganization, String nation) {
         this.id = id;
         this.time = time;
         this.accessSuccessful = accessSuccessful;
@@ -170,9 +214,44 @@ public class AccessRecordBean {
         this.accordRate = accordRate;
         this.uploadToHttp = uploadToHttp;
         this.fid = fid;
+        this.gender = gender;
+        this.birthday = birthday;
+        this.location = location;
+        this.validityTime = validityTime;
+        this.signingOrganization = signingOrganization;
+        this.nation = nation;
     }
     @Generated(hash = 1738883123)
     public AccessRecordBean() {
     }
 
+    @Override
+    public String toString() {
+        return "AccessRecordBean{" +
+                "id=" + id +
+                ", time=" + time +
+                ", accessSuccessful=" + accessSuccessful +
+                ", type=" + type +
+                ", accessImage='" + accessImage + '\'' +
+                ", personId=" + personId +
+                ", authorityId=" + authorityId +
+                ", cardNum='" + cardNum + '\'' +
+                ", idNum='" + idNum + '\'' +
+                ", personImage='" + personImage + '\'' +
+                ", personName='" + personName + '\'' +
+                ", defaultFaceFeatureNumber=" + defaultFaceFeatureNumber +
+                ", currentFaceFeatureNumber=" + currentFaceFeatureNumber +
+                ", count=" + count +
+                ", personRate=" + personRate +
+                ", accordRate=" + accordRate +
+                ", uploadToHttp=" + uploadToHttp +
+                ", fid='" + fid + '\'' +
+                ", gender='" + gender + '\'' +
+                ", birthday='" + birthday + '\'' +
+                ", location='" + location + '\'' +
+                ", validityTime='" + validityTime + '\'' +
+                ", signingOrganization='" + signingOrganization + '\'' +
+                ", nation='" + nation + '\'' +
+                '}';
+    }
 }

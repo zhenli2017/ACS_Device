@@ -1,6 +1,5 @@
 package com.thdtek.acs.terminal.face;
 
-import com.thdtek.acs.terminal.Msg;
 import com.thdtek.acs.terminal.bean.FacePairEvent;
 import com.thdtek.acs.terminal.bean.IDBean;
 

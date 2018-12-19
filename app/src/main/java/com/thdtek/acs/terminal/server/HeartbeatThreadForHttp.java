@@ -41,6 +41,12 @@ public class HeartbeatThreadForHttp extends Thread {
 
     public static boolean mLoop = true;
 
+    private static OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build();
+
     @Override
     public void run() {
         super.run();
@@ -49,10 +55,10 @@ public class HeartbeatThreadForHttp extends Thread {
 
             sendHeartbeat();
 
-            int period = (int) SPUtils.get(MyApplication.getContext(),
-                    Const.PERIOD_FOR_HTTP_HEARTBEAT, 15);
+            long period = (long) SPUtils.get(MyApplication.getContext(),
+                    Const.PERIOD_FOR_HTTP_HEARTBEAT, 15000L);
             try {
-                Thread.sleep(period * 1000);
+                Thread.sleep(period);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;
@@ -71,11 +77,11 @@ public class HeartbeatThreadForHttp extends Thread {
         FormBody build = null;
         try {
             build = new FormBody.Builder()
-                    .addEncoded("deviceElapsedRealtime", URLEncoder.encode((SystemClock.elapsedRealtime() / 1000) + "", "utf-8"))
+                    .addEncoded("deviceElapsedRealtime", URLEncoder.encode(( (double)SystemClock.elapsedRealtime() / 1000) + "", "utf-8"))
                     .addEncoded("deviceSystemVersion", URLEncoder.encode(android.os.Build.VERSION.RELEASE, "utf-8"))
                     .addEncoded("deviceSn", URLEncoder.encode(DeviceSnUtil.getDeviceSn(), "utf-8"))
                     .addEncoded("deviceAppVersion", URLEncoder.encode(AppUtil.getAppVersionName(MyApplication.getContext()), "utf-8"))
-                    .addEncoded("deviceRegisterTime", URLEncoder.encode(AppSettingUtil.getConfig().getDeviceRegisterTime() + "", "utf-8"))
+                    .addEncoded("deviceRegisterTime", URLEncoder.encode( (double)(AppSettingUtil.getConfig().getDeviceRegisterTime()) / 1000+ "", "utf-8"))
                     .addEncoded("deviceRomAvailableSize", URLEncoder.encode(AppSettingUtil.getRomSize()[0] + "MB", "utf-8"))
                     .addEncoded("deviceRomSize", URLEncoder.encode(AppSettingUtil.getRomSize()[1] + "MB", "utf-8"))
                     .addEncoded("deviceIpAddress", URLEncoder.encode(HWUtil.getIPAddress(), "utf-8"))
@@ -83,22 +89,18 @@ public class HeartbeatThreadForHttp extends Thread {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             build = new FormBody.Builder()
-                    .add("deviceElapsedRealtime", (SystemClock.elapsedRealtime() / 1000) + "")
+                    .add("deviceElapsedRealtime", ( (double)SystemClock.elapsedRealtime() / 1000) + "")
                     .add("deviceSystemVersion", android.os.Build.VERSION.RELEASE)
                     .add("deviceSn", DeviceSnUtil.getDeviceSn())
                     .add("deviceAppVersion", AppUtil.getAppVersionName(MyApplication.getContext()))
-                    .add("deviceRegisterTime", AppSettingUtil.getConfig().getDeviceRegisterTime() + "")
+                    .add("deviceRegisterTime", ((double)(AppSettingUtil.getConfig().getDeviceRegisterTime())) / 1000 + "")
                     .add("deviceRomAvailableSize", AppSettingUtil.getRomSize()[0] + "MB")
                     .add("deviceRomSize", AppSettingUtil.getRomSize()[1] + "MB")
                     .add("deviceIpAddress", HWUtil.getIPAddress())
                     .build();
         }
         LogUtils.d(TAG, "发送http心跳 ... " + url);
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .build();
+
         final Request request = new Request.Builder()
                 .url(url)
                 .header("Content-Length", build.contentLength() + "")

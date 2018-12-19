@@ -6,6 +6,7 @@ import com.thdtek.acs.terminal.Msg;
 import com.thdtek.acs.terminal.base.ThreadPool;
 import com.thdtek.acs.terminal.http.serverpush.PushBaseImp;
 import com.thdtek.acs.terminal.socket.core.SendMsgHelper;
+import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.HWUtil;
 
 /**
@@ -33,9 +34,11 @@ public class PushRebootOrOpenAndCloseDoor extends PushBaseImp {
         if (ctrl.getNumber() == 0) {
             rebootDelay();
         } else if (ctrl.getNumber() == 1) {
-            HWUtil.openDoor("");
-            SystemClock.sleep(1000);
-            HWUtil.closeDoor();
+            HWUtil.openDoorRelay();
+            HWUtil.openDoorWeigen26(AppSettingUtil.getConfig().getGuestOpenDoorNumber());
+            HWUtil.openDoorWeigen34(AppSettingUtil.getConfig().getGuestOpenDoorNumber());
+            SystemClock.sleep(AppSettingUtil.getConfig().getOpenDoorContinueTime());
+            HWUtil.closeDoorRelay();
         } else if (ctrl.getNumber() == 2) {
             HWUtil.closeDoor();
         }

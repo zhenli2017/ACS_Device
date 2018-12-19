@@ -11,9 +11,6 @@ import com.thdtek.acs.terminal.bean.ConfigBean;
 import com.thdtek.acs.terminal.socket.core.AES;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -88,7 +85,7 @@ public class AppSettingUtil {
 
     public static ConfigBean setDefaultConfig() {
         ConfigBean configBean = new ConfigBean();
-        configBean.setAppWelcomeMsg("识别成功");
+        configBean.setAppWelcomeMsg("@");
         configBean.setAppWelcomeMusic("");
         configBean.setCameraDetectType(0);
         configBean.setDeviceAppVersion(AppUtil.getAppVersionName(MyApplication.getContext()));
@@ -99,7 +96,7 @@ public class AppSettingUtil {
         configBean.setDeviceHardwareSdkVersion("");
         configBean.setDeviceIntoOrOut(0);
         configBean.setDeviceIpAddress("");
-        configBean.setDeviceMusicSize(0);
+        configBean.setDeviceMusicSize(50);
         configBean.setDeviceName("");
         configBean.setDeviceNetworkIpType(0);
         configBean.setDeviceNetworkType(0);
@@ -111,20 +108,24 @@ public class AppSettingUtil {
         configBean.setDeviceRomSize("");
         configBean.setDeviceSerialNumber("");
         configBean.setDeviceServiceTime(0);
-        configBean.setDeviceSn(DeviceSnUtil.getDeviceSn());
+        configBean.setDeviceSn("");
         configBean.setDeviceSystemVersion("");
         configBean.setDeviceTemperature(0);
-        configBean.setDoorType(26);
+        configBean.setDoorType(260);
         configBean.setFaceFeaturePairNumber(Const.SDK.equals(Const.SDK_YUN_TIAN_LI_FEI) ? 0.92f : 0.6f);
         configBean.setFaceFeaturePairSuccessOrFailWaitTime(2000);
         configBean.setOpenDoorContinueTime(1000);
         configBean.setOpenDoorType(0);
         configBean.setServerIp("");
         configBean.setServerPort(0);
-        configBean.setAppFailMsg("识别失败");
-        configBean.setIdFeaturePairNumber(Const.SDK.equals(Const.SDK_YUN_TIAN_LI_FEI) ? 0.80f : 0.5f);
+        configBean.setAppFailMsg("");
+        configBean.setIdFeaturePairNumber(Const.SDK.equals(Const.SDK_YUN_TIAN_LI_FEI) ? 0.75f : 0.5f);
         configBean.setGuestOpenDoorType(0);
         configBean.setGuestOpenDoorNumber("12345678");
+        configBean.setFillLightTimes("");
+        configBean.setBeginRecoDistance(0f);
+        configBean.setPicQualityRate(0.72f);
+        configBean.setPairSuccessOpenDoor(0);
         DBUtil.getDaoSession().getConfigBeanDao().insertOrReplace(configBean);
         return configBean;
     }
@@ -308,18 +309,7 @@ public class AppSettingUtil {
             configBean.setAppFailMsg(config.getAppFailMsg());
         }
         if (config.hasVisitorCardNo()) {
-            try {
-                if (AppSettingUtil.getConfig().getDoorType() == Const.WG_34) {
-                    configBean.setGuestOpenDoorNumber(String.format(Locale.getDefault(), "%010d", Long.parseLong(config.getVisitorCardNo())));
-                } else {
-                    configBean.setGuestOpenDoorNumber(String.format(Locale.getDefault(), "%08d", Long.parseLong(config.getVisitorCardNo())));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                LogUtils.e(TAG, "添加的人的 IC 卡 Integer 转换失败 = " + config.hasVisitorCardNo());
-                configBean.setGuestOpenDoorNumber(Const.ERROR_EMPLOYEE_CARD_NUMBER);
-            }
-
+            configBean.setGuestOpenDoorNumber(config.getVisitorCardNo());
         }
         if (config.hasVisitorOpenDoorType()) {
             configBean.setGuestOpenDoorType(config.getVisitorOpenDoorType());
@@ -329,6 +319,18 @@ public class AppSettingUtil {
             configBean.setIdFeaturePairNumber(config.getIdCardFaceFeaturePairNumber());
         }
 
+        if (config.hasPicQualityRate()) {
+            configBean.setPicQualityRate(config.getPicQualityRate());
+        }
+        if (config.hasBeginRecoDistance()) {
+            configBean.setBeginRecoDistance(config.getBeginRecoDistance());
+        }
+        if (config.hasFillLightTimes()) {
+            configBean.setFillLightTimes(config.getFillLightTimes());
+        }
+        if (config.hasPairSuccessOpenDoor()) {
+            configBean.setPairSuccessOpenDoor(config.getPairSuccessOpenDoor());
+        }
 
         configBeanDao.update(configBean);
         AppSettingUtil.getConfig(true);

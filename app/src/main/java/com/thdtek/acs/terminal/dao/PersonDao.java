@@ -64,14 +64,14 @@ public class PersonDao {
     public static void update(PersonBean personBean) {
         getDao().update(personBean);
         if (!mPeopleBeanList.contains(personBean)) {
-            LogUtils.d(TAG,"person update not contains");
+            LogUtils.d(TAG, "person update not contains");
             mPeopleBeanList.add(personBean);
         } else {
-            LogUtils.d(TAG,"person update contains");
+            LogUtils.d(TAG, "person update contains");
             mPeopleBeanList.remove(personBean);
             mPeopleBeanList.add(personBean);
         }
-        LogUtils.d(TAG, "update mPeopleBeanList size = " + mPeopleBeanList.size() + " AUid = " + personBean.getAuth_id() + " pId = " + personBean.getPerson_id()+" msg = "+personBean.toString());
+        LogUtils.d(TAG, "update mPeopleBeanList size = " + mPeopleBeanList.size() + " AUid = " + personBean.getAuth_id() + " pId = " + personBean.getPerson_id() + " msg = " + personBean.toString());
     }
 
     public static void delete(PersonBean personBean) {
@@ -93,6 +93,9 @@ public class PersonDao {
         if (!TextUtils.isEmpty(personBean.getFacePic())) {
             FileUtil.deleteFile(personBean.getFacePic());
         }
+        if (!TextUtils.isEmpty(personBean.getOldFacePic())) {
+            FileUtil.deleteFile(personBean.getOldFacePic());
+        }
 
         LogUtils.d(TAG, "删除权限成功 = " + authorityId + " size = " + mPeopleBeanList.size());
         return true;
@@ -112,12 +115,7 @@ public class PersonDao {
     }
 
     public static long queryAllSize() {
-        List<PersonBean> personBeans = queryAll();
-        if (personBeans == null || personBeans.size() == 0) {
-            return 0L;
-        } else {
-            return personBeans.size();
-        }
+        return getDao().queryBuilder().count();
     }
 
     public static PersonBean query2PersonId(long id) {
@@ -148,7 +146,7 @@ public class PersonDao {
     }
 
     public static PersonBean query2ICCard(String icNumber) {
-        List<PersonBean> list = PersonDao.getDao().queryBuilder().where(PersonBeanDao.Properties.Employee_card_id.eq(icNumber)).list();
+        List<PersonBean> list = PersonDao.getDao().queryBuilder().where(PersonBeanDao.Properties.IcNoHex.eq(icNumber)).list();
         if (list == null || list.size() == 0) {
             return null;
         } else {
@@ -164,6 +162,7 @@ public class PersonDao {
             return list.get(0);
         }
     }
+
     public static PersonBean query2Fid(String fid) {
         List<PersonBean> list = PersonDao.getDao().queryBuilder().where(PersonBeanDao.Properties.Fid.eq(fid)).list();
         if (list == null || list.size() == 0) {
@@ -186,6 +185,7 @@ public class PersonDao {
         personBean.setID_no(rsyncPersonRsp.getIDNo().toLowerCase().trim());
         //设置卡号
         personBean.setEmployee_card_id(rsyncPersonRsp.getEmployeeCardId().toLowerCase().trim());
+        personBean.setIcNoHex(rsyncPersonRsp.getEmployeeCardId().toLowerCase().trim());
         String imagePath = "图片保存失败";
         try {
             LogUtils.d(TAG, "insert personBean.getPerson_id() = " + personBean.getPerson_id());
@@ -197,7 +197,7 @@ public class PersonDao {
             LogUtils.d(TAG, "insert personBean.getPerson_id() = " + personBean.getPerson_id() + " imagePath = " + imagePath);
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtils.d(TAG,"insertPerson = "+e.getMessage());
+            LogUtils.d(TAG, "insertPerson = " + e.getMessage());
         }
         //包含特定的字段表示保存成功
         if (imagePath.contains(Const.PERSON_OFFICIAL_IMAGE_SAVE_SUCCESS)) {
@@ -222,6 +222,7 @@ public class PersonDao {
         if (rsyncPersonRsp.hasEmployeeCardId()) {
             //设置卡号
             personBean.setEmployee_card_id(rsyncPersonRsp.getEmployeeCardId().toLowerCase().trim());
+            personBean.setIcNoHex(rsyncPersonRsp.getEmployeeCardId().toLowerCase().trim());
         }
         if (rsyncPersonRsp.hasIDNo()) {
             personBean.setID_no(rsyncPersonRsp.getIDNo().toLowerCase().trim());
@@ -248,7 +249,7 @@ public class PersonDao {
                 LogUtils.d(TAG, "update imagePath = " + imagePath + "personBean.getPerson_id() = " + personBean.getPerson_id());
             } catch (Exception e) {
                 e.printStackTrace();
-                LogUtils.d(TAG,"insertPerson = "+e.getMessage());
+                LogUtils.d(TAG, "insertPerson = " + e.getMessage());
             }
             //包含特定的字段表示保存成功
             if (imagePath.contains(Const.PERSON_OFFICIAL_IMAGE_SAVE_SUCCESS)) {

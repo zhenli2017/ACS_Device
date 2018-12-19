@@ -1,16 +1,21 @@
 package com.thdtek.acs.terminal.thread;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.thdtek.acs.terminal.util.ByteFormatTransferUtils;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
+import com.thdtek.acs.terminal.util.WGUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 /**
  * Time:2018/8/22
@@ -28,6 +33,8 @@ public class SerialThread extends Thread {
     private byte[] msgSET = {(byte) 0x0F1, 0x01, 0x05, 0x01, (byte) 0xFA, 0x07, (byte) 0xD0, 0x55, (byte) 0xAA};
     private byte[] msgWG0 = {(byte) 0x0F1, 0x02, 0x05, 0x00, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
     private byte[] msgWG1 = {(byte) 0x0F1, 0x03, 0x05, 0x00, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
+    private byte[] msgWG66H = {(byte) 0x0F1, 0x04, 0x05, 0x00, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
+    private byte[] msgWG66P = {(byte) 0x0F1, 0x05, 0x05, 0x00, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
     private byte[] msgGPIO0 = {(byte) 0x0F2, 0x01, 0x05, 0x00, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
     private byte[] msgGPIO1 = {(byte) 0x0F2, 0x01, 0x05, 0x01, 0x12, 0x34, (byte) 0xAA, 0x55, (byte) 0xAA};
     private byte[] msgGetVer = {(byte) 0x0F0, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x55, (byte) 0xAA};
@@ -209,6 +216,8 @@ public class SerialThread extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+
         }
     }
 
@@ -222,12 +231,19 @@ public class SerialThread extends Thread {
         }
     }
 
-    public void onWG26(int carid) {
+    public void onWG26(String number) {
 
-        msgWG0[3] = (byte) ((carid >> 24) & 0xFF);
-        msgWG0[4] = (byte) ((carid >> 16) & 0xFF);
-        msgWG0[5] = (byte) ((carid >> 8) & 0xFF);
-        msgWG0[6] = (byte) (carid & 0xFF);
+        byte[] bytesOne = ByteFormatTransferUtils.hexStringToBytes(number.substring(2, 4));
+        byte[] bytesTwo = ByteFormatTransferUtils.hexStringToBytes(number.substring(4, 6));
+        byte[] bytesThree = ByteFormatTransferUtils.hexStringToBytes(number.substring(6, 8));
+
+        System.out.println("one = " + ByteFormatTransferUtils.bytesToHexString(bytesOne)
+                + " two = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesTwo)
+                + " three = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesThree));
+        msgWG0[4] = bytesOne[0];
+        msgWG0[5] = bytesTwo[0];
+        msgWG0[6] = bytesThree[0];
+//        msgWG0[6] = (byte) (carid & 0xFF);
 
 
         try {
@@ -241,13 +257,67 @@ public class SerialThread extends Thread {
         }
     }
 
-    public void onWG34(int carid) {
+    public void onWG66(String number) {
 
-        msgWG0[3] = (byte) ((carid >> 24) & 0xFF);
-        msgWG0[4] = (byte) ((carid >> 16) & 0xFF);
-        msgWG0[5] = (byte) ((carid >> 8) & 0xFF);
-        msgWG0[6] = (byte) (carid & 0xFF);
+        String parseWG66 = WGUtil.parseWG66(number);
 
+        byte[] bytesZeroH = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(0, 2));
+        byte[] bytesOneH = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(2, 4));
+        byte[] bytesTwoH = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(4, 6));
+        byte[] bytesThreeH = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(6, 8));
+
+        byte[] bytesZeroP = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(8, 10));
+        byte[] bytesOneP = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(10, 12));
+        byte[] bytesTwoP = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(12, 14));
+        byte[] bytesThreeP = ByteFormatTransferUtils.hexStringToBytes(parseWG66.substring(14, 16));
+        LogUtils.d(TAG, "H Zero = " + ByteFormatTransferUtils.bytesToHexString(bytesZeroH)
+                + " H one = " + ByteFormatTransferUtils.bytesToHexString(bytesOneH)
+                + " H two = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesTwoH)
+                + " H three = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesThreeH)
+                + " P Zero = " + ByteFormatTransferUtils.bytesToHexString(bytesZeroP)
+                + " P one = " + ByteFormatTransferUtils.bytesToHexString(bytesOneP)
+                + " P two = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesTwoP)
+                + " P three = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesThreeP));
+        msgWG66H[3] = bytesZeroH[0];
+        msgWG66H[4] = bytesOneH[0];
+        msgWG66H[5] = bytesTwoH[0];
+        msgWG66H[6] = bytesThreeH[0];
+
+        msgWG66P[3] = bytesZeroP[0];
+        msgWG66P[4] = bytesOneP[0];
+        msgWG66P[5] = bytesTwoP[0];
+        msgWG66P[6] = bytesThreeP[0];
+        try {
+            Thread.sleep(100);
+            mOutputStream.write(msgWG66H);
+            Thread.sleep(100);
+            mOutputStream.write(msgWG66P);
+            Thread.sleep(100);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onWG34(String number) {
+
+
+
+        byte[] bytesZero = ByteFormatTransferUtils.hexStringToBytes(number.substring(0, 2));
+        byte[] bytesOne = ByteFormatTransferUtils.hexStringToBytes(number.substring(2, 4));
+        byte[] bytesTwo = ByteFormatTransferUtils.hexStringToBytes(number.substring(4, 6));
+        byte[] bytesThree = ByteFormatTransferUtils.hexStringToBytes(number.substring(6, 8));
+
+        System.out.println(
+                "Zero = " + ByteFormatTransferUtils.bytesToHexString(bytesZero)
+                        + " one = " + ByteFormatTransferUtils.bytesToHexString(bytesOne)
+                        + " two = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesTwo)
+                        + " three = " + ByteFormatTransferUtils.bytesToHexStringNoSpace(bytesThree));
+        msgWG1[3] = bytesZero[0];
+        msgWG1[4] = bytesOne[0];
+        msgWG1[5] = bytesTwo[0];
+        msgWG1[6] = bytesThree[0];
 
         try {
             Thread.sleep(100);
@@ -259,6 +329,24 @@ public class SerialThread extends Thread {
             e.printStackTrace();
         }
     }
+//    public void onWG34(int carid) {
+//
+//        msgWG0[3] = (byte) ((carid >> 24) & 0xFF);
+//        msgWG0[4] = (byte) ((carid >> 16) & 0xFF);
+//        msgWG0[5] = (byte) ((carid >> 8) & 0xFF);
+//        msgWG0[6] = (byte) (carid & 0xFF);
+//
+//
+//        try {
+//            Thread.sleep(100);
+//            mOutputStream.write(msgWG1);
+//            Thread.sleep(100);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private static boolean open = true;
 

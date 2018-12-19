@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.thdtek.acs.terminal.bean.AccessRecordBean;
+import com.thdtek.acs.terminal.bean.ConfigBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.dao.PersonDao;
 
@@ -120,12 +121,23 @@ public class DBUtil {
                         GreenDaoUpdateUtil.getInstance().generateTempTables(db, AccessRecordBeanDao.class);
                     case 24:
                     case 25:
-                        GreenDaoUpdateUtil.getInstance().generateTempTables(db,PersonBeanDao.class);
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, PersonBeanDao.class);
                     case 26:
                     case 27:
-                        GreenDaoUpdateUtil.getInstance().generateTempTables(db,PersonBeanDao.class);
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, PersonBeanDao.class);
                     case 28:
-
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, ConfigBeanDao.class);
+                    case 29:
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, AccessRecordBeanDao.class);
+                    case 30:
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, PersonBeanDao.class);
+                    case 31:
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, PersonBeanDao.class);
+                    case 32:
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, ConfigBeanDao.class);
+                    case 33:
+                        GreenDaoUpdateUtil.getInstance().generateTempTables(db, PersonBeanDao.class);
+                    case 34:
                     default:
                         break;
                 }

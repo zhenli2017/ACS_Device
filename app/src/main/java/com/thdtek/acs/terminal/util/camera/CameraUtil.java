@@ -157,7 +157,7 @@ public class CameraUtil {
 
     public static String save2Temp(byte[] data, String fileName, Bitmap.CompressFormat format, Rect rect) throws IOException {
         File dir = new File(getDefaultTempImageDirPath());
-        AppSettingUtil.deleteImageOver1000(new File(getDefaultTempImageDirPath()), 150);
+        AppSettingUtil.deleteImageOver1000(new File(getDefaultTempImageDirPath()), 1000);
         Bitmap bitmap = null;
         if (Const.SDK_YUN_TIAN_LI_FEI.equals(Const.SDK)) {
             bitmap = BitmapUtil.bgr2Bitmap(data, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);

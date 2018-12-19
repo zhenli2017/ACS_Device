@@ -116,4 +116,10 @@ public class NowPicFeatureDao {
         }
     }
 
+    public static void deleteAll(){
+        getDao().deleteAll();
+        mMap.clear();
+        LogUtils.d(TAG, "NowPicFeature数据库已经清空");
+    }
+
 }

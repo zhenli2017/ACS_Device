@@ -41,7 +41,15 @@
         android:text="@string/manage_system_setting"
         android:textColor="@color/white"
         android:textSize="@dimen/dimen_18sp"/>
-
+    <Button
+        android:id="@+id/btn_license"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_57dp"
+        android:layout_marginTop="@dimen/dimen_32dp"
+        android:background="@drawable/shape_server_btn_bg"
+        android:text="@string/down_load_license"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dimen_18sp"/>
     <Button
         android:id="@+id/btn_old"
         android:layout_width="match_parent"

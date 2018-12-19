@@ -54,9 +54,9 @@ public class ConfigBean {
 
     private int cameraDetectType;
     private float faceFeaturePairNumber;
-    private long  faceFeaturePairSuccessOrFailWaitTime;
+    private long faceFeaturePairSuccessOrFailWaitTime;
     private int openDoorType;
-    private long  openDoorContinueTime;
+    private long openDoorContinueTime;
     private int doorType;
     private String deviceName;
     private String deviceSerialNumber;
@@ -71,8 +71,8 @@ public class ConfigBean {
     private int deviceNetworkIpType;
     private String deviceIpAddress;
     private String deviceSn;
-    private long  deviceServiceTime;
-    private long  deviceRegisterTime;
+    private long deviceServiceTime;
+    private long deviceRegisterTime;
     private String deviceRomSize;
     private String deviceRomAvailableSize;
     private String deviceRamMaxSize;
@@ -87,9 +87,14 @@ public class ConfigBean {
     private long deviceElapsedRealtime;
     private String appFailMsg;
 
+    private String fillLightTimes;
+    private float beginRecoDistance; //识别距离，终端框出人脸正方形的边长像素值长于此值，则进行识别
+    private float picQualityRate; //图片质量参数，0~1.0，质量越高，识别越不易出错
+
     private float idFeaturePairNumber;
     private int guestOpenDoorType;
     private String guestOpenDoorNumber;
+    private int pairSuccessOpenDoor;
     public String getGuestOpenDoorNumber() {
         return this.guestOpenDoorNumber;
     }
@@ -107,6 +112,24 @@ public class ConfigBean {
     }
     public void setIdFeaturePairNumber(float idFeaturePairNumber) {
         this.idFeaturePairNumber = idFeaturePairNumber;
+    }
+    public float getPicQualityRate() {
+        return this.picQualityRate;
+    }
+    public void setPicQualityRate(float picQualityRate) {
+        this.picQualityRate = picQualityRate;
+    }
+    public float getBeginRecoDistance() {
+        return this.beginRecoDistance;
+    }
+    public void setBeginRecoDistance(float beginRecoDistance) {
+        this.beginRecoDistance = beginRecoDistance;
+    }
+    public String getFillLightTimes() {
+        return this.fillLightTimes;
+    }
+    public void setFillLightTimes(String fillLightTimes) {
+        this.fillLightTimes = fillLightTimes;
     }
     public String getAppFailMsg() {
         return this.appFailMsg;
@@ -319,23 +342,28 @@ public class ConfigBean {
     public void setId(Long id) {
         this.id = id;
     }
-    @Generated(hash = 1697483403)
+    public int getPairSuccessOpenDoor() {
+        return this.pairSuccessOpenDoor;
+    }
+    public void setPairSuccessOpenDoor(int pairSuccessOpenDoor) {
+        this.pairSuccessOpenDoor = pairSuccessOpenDoor;
+    }
+    @Generated(hash = 1077978437)
     public ConfigBean(Long id, int cameraDetectType, float faceFeaturePairNumber,
             long faceFeaturePairSuccessOrFailWaitTime, int openDoorType,
             long openDoorContinueTime, int doorType, String deviceName,
-            String deviceSerialNumber, String deviceDefendTime,
-            int deviceIntoOrOut, int deviceMusicSize, String appWelcomeMsg,
-            String appWelcomeMusic, String serverIp, int serverPort,
-            int deviceNetworkType, int deviceNetworkIpType, String deviceIpAddress,
-            String deviceSn, long deviceServiceTime, long deviceRegisterTime,
-            String deviceRomSize, String deviceRomAvailableSize,
-            String deviceRamMaxSize, String deviceRamTotalSize,
-            String deviceRamUseSize, int deviceCpuTemperature,
-            int deviceTemperature, String deviceSystemVersion,
+            String deviceSerialNumber, String deviceDefendTime, int deviceIntoOrOut,
+            int deviceMusicSize, String appWelcomeMsg, String appWelcomeMusic,
+            String serverIp, int serverPort, int deviceNetworkType, int deviceNetworkIpType,
+            String deviceIpAddress, String deviceSn, long deviceServiceTime,
+            long deviceRegisterTime, String deviceRomSize, String deviceRomAvailableSize,
+            String deviceRamMaxSize, String deviceRamTotalSize, String deviceRamUseSize,
+            int deviceCpuTemperature, int deviceTemperature, String deviceSystemVersion,
             String deviceAppVersion, String deviceCameraSdkVersion,
-            String deviceHardwareSdkVersion, long deviceElapsedRealtime,
-            String appFailMsg, float idFeaturePairNumber, int guestOpenDoorType,
-            String guestOpenDoorNumber) {
+            String deviceHardwareSdkVersion, long deviceElapsedRealtime, String appFailMsg,
+            String fillLightTimes, float beginRecoDistance, float picQualityRate,
+            float idFeaturePairNumber, int guestOpenDoorType, String guestOpenDoorNumber,
+            int pairSuccessOpenDoor) {
         this.id = id;
         this.cameraDetectType = cameraDetectType;
         this.faceFeaturePairNumber = faceFeaturePairNumber;
@@ -371,11 +399,16 @@ public class ConfigBean {
         this.deviceHardwareSdkVersion = deviceHardwareSdkVersion;
         this.deviceElapsedRealtime = deviceElapsedRealtime;
         this.appFailMsg = appFailMsg;
+        this.fillLightTimes = fillLightTimes;
+        this.beginRecoDistance = beginRecoDistance;
+        this.picQualityRate = picQualityRate;
         this.idFeaturePairNumber = idFeaturePairNumber;
         this.guestOpenDoorType = guestOpenDoorType;
         this.guestOpenDoorNumber = guestOpenDoorNumber;
+        this.pairSuccessOpenDoor = pairSuccessOpenDoor;
     }
     @Generated(hash = 1548494737)
     public ConfigBean() {
     }
+
 }

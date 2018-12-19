@@ -3,6 +3,9 @@ package com.thdtek.acs.terminal.face;
 import android.graphics.Rect;
 
 import com.thdtek.acs.terminal.base.ThreadPool;
+import com.thdtek.acs.terminal.bean.AccessRecordBean;
+import com.thdtek.acs.terminal.bean.FacePairBean;
+import com.thdtek.acs.terminal.bean.PairSuccessOtherBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.dao.AccessRecordDao;
 import com.thdtek.acs.terminal.dao.PersonDao;
@@ -59,10 +62,21 @@ public class FacePairStatus {
      * 匹配成功
      */
     public synchronized void pairSuccess(final PersonBean personBean,
+                                         final PairSuccessOtherBean pairSuccessOtherBean,
                                          final byte[] image,
-                                         final float rate, final Rect rect, int insert, final boolean cameraData) {
+                                         final float rate,
+                                         final Rect rect,
+                                         int insert,
+                                         final boolean cameraData) {
+        FacePairBean facePairBean = new FacePairBean();
+        long accessTime = System.currentTimeMillis();
+
+        pairSuccessOtherBean.setAccessTime(accessTime);
+
+        facePairBean.setAccessTime(accessTime);
+        facePairBean.setPersonBean(personBean);
         if (mFindFaceInterface != null) {
-            mFindFaceInterface.facePairSuccess(personBean, insert);
+            mFindFaceInterface.facePairSuccess(facePairBean, insert);
         }
         CameraUtil.PAIR_FACE_SUCCESS_COLOR = true;
         setLastFacePairSuccessAuthorityId(personBean.getAuth_id());
@@ -76,7 +90,7 @@ public class FacePairStatus {
                         personBean.setCount(personBean.getCount() - 1);
                         PersonDao.update(personBean);
                     }
-                    AccessRecordDao.insert(personBean, image, rate, rect, cameraData);
+                    AccessRecordDao.insert(personBean, pairSuccessOtherBean, image, rate, rect, cameraData);
                 }
             });
         }
@@ -88,8 +102,8 @@ public class FacePairStatus {
     public synchronized void pairFail(int type, String msg, int code) {
         if (type == Const.OPEN_DOOR_TYPE_FACE_IC || type == Const.OPEN_DOOR_TYPE_FACE_ID) {
             CameraUtil.PAIR_FACE_SUCCESS_COLOR = false;
+            TtsUtil.getInstance().stop();
             TtsUtil.getInstance().speak(AppSettingUtil.getConfig().getAppFailMsg());
-
             if (mFindFaceInterface != null) {
                 mFindFaceInterface.facePairFail(msg,code);
             }
@@ -97,7 +111,9 @@ public class FacePairStatus {
 
             if (mFacePairFailCurrentCount % Const.FACE_PAIR_FAIL_REPEAT_COUNT == 0) {
                 CameraUtil.PAIR_FACE_SUCCESS_COLOR = false;
+                TtsUtil.getInstance().stop();
                 TtsUtil.getInstance().speak(AppSettingUtil.getConfig().getAppFailMsg());
+
                 if (mFindFaceInterface != null) {
 
                     mFindFaceInterface.facePairFail(msg,code);

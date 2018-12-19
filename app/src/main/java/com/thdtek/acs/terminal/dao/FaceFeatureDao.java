@@ -83,4 +83,10 @@ public class FaceFeatureDao {
         }
     }
 
+    public static void deleteAll(){
+        getDao().deleteAll();
+        mMap.clear();
+        LogUtils.d(TAG, "FaceFeature数据库已经清空");
+    }
+
 }

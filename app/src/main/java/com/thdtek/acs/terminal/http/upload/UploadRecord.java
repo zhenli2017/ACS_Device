@@ -1,5 +1,9 @@
 package com.thdtek.acs.terminal.http.upload;
 
+import android.os.SystemClock;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.google.protobuf.ByteString;
 import com.thdtek.acs.terminal.Msg;
 import com.thdtek.acs.terminal.bean.AccessRecordBean;
@@ -9,9 +13,12 @@ import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.DBUtil;
 import com.thdtek.acs.terminal.util.FileUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Locale;
 
 import greendao.AccessRecordBeanDao;
 
@@ -31,7 +38,7 @@ public class UploadRecord {
     }
 
     public static void upload() {
-        if(!Const.IS_OPEN_AUTO_UPLOAD_PASS_RECORD){
+        if (!SwitchConst.IS_OPEN_AUTO_UPLOAD_PASS_RECORD) {
             LogUtils.d(TAG, "当前模式不自动上传流水");
             return;
         }
@@ -45,9 +52,11 @@ public class UploadRecord {
         try {
             uploadRecord();
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtils.e(TAG, "upload error = " + e.getMessage());
             UPLOADING = false;
         }
+
     }
 
     /**
@@ -69,20 +78,45 @@ public class UploadRecord {
             LogUtils.e(TAG, "读取通过图片失败");
 
         }
-        Msg.Message.RsyncPassRecordReq.Builder builder = Msg.Message.RsyncPassRecordReq.newBuilder()
-                .setPassTs(accessRecordBean.getTime() / 1000)
-                .setPersonId(accessRecordBean.getPersonId())
-                .setAuthId(accessRecordBean.getAuthorityId())
-                .setCount(accessRecordBean.getCount())
-                .setDefaultFaceFeatureRate(accessRecordBean.getDefaultFaceFeatureNumber())
-                .setCurrentFaceFeatureRate(accessRecordBean.getCurrentFaceFeatureNumber())
-                .setMethod(accessRecordBean.getType());
+        if (TextUtils.isEmpty(accessRecordBean.getIdNum()) || "null".equals(accessRecordBean.getIdNum().toLowerCase().trim())) {
+            accessRecordBean.setIdNum("");
+        }
+        Msg.Message.RsyncPassRecordReq.Builder builder = null;
+        try {
+            builder = Msg.Message.RsyncPassRecordReq.newBuilder()
+                    .setPassTs(accessRecordBean.getTime() / 1000)
+                    .setPersonId(accessRecordBean.getPersonId())
+                    .setAuthId(accessRecordBean.getAuthorityId())
+                    .setCount(accessRecordBean.getCount())
+                    .setDefaultFaceFeatureRate(accessRecordBean.getDefaultFaceFeatureNumber())
+                    .setCurrentFaceFeatureRate(accessRecordBean.getCurrentFaceFeatureNumber())
+                    .setGender("男".equals(accessRecordBean.getGender()) ? 0 : 1)
+                    .setBirthday(TextUtils.isEmpty(accessRecordBean.getBirthday()) ? "" : accessRecordBean.getBirthday())
+                    .setValidityTime(TextUtils.isEmpty(accessRecordBean.getValidityTime()) ? "" : accessRecordBean.getValidityTime())
+                    .setIdNumber(TextUtils.isEmpty(accessRecordBean.getIdNum()) ? "" : new String(accessRecordBean.getIdNum().getBytes(), "UTF-8"))
+                    .setSigningOrganization(TextUtils.isEmpty(accessRecordBean.getSigningOrganization()) ? "" : new String(accessRecordBean.getSigningOrganization().getBytes(), "UTF-8"))
+                    .setNation(TextUtils.isEmpty(accessRecordBean.getNation()) ? "" : new String(accessRecordBean.getNation().getBytes(), "UTF-8"))
+                    .setName(TextUtils.isEmpty(accessRecordBean.getPersonName()) ? "" : new String(accessRecordBean.getPersonName().getBytes(), "UTF-8"))
+                    .setMethod(accessRecordBean.getType());
+        } catch (Exception e) {
+            e.printStackTrace();
+            builder = Msg.Message.RsyncPassRecordReq.newBuilder()
+                    .setPassTs(accessRecordBean.getTime() / 1000)
+                    .setPersonId(accessRecordBean.getPersonId())
+                    .setAuthId(accessRecordBean.getAuthorityId())
+                    .setCount(accessRecordBean.getCount())
+                    .setDefaultFaceFeatureRate(accessRecordBean.getDefaultFaceFeatureNumber())
+                    .setCurrentFaceFeatureRate(accessRecordBean.getCurrentFaceFeatureNumber())
+                    .setMethod(accessRecordBean.getType());
+        }
+        LogUtils.d(TAG, "上传流水信息时间 = " + accessRecordBean.getPersonName());
+
         if (bytes == null) {
 
         } else {
             builder.setNowImg(bytes);
         }
-        Msg.Message.RsyncPassRecordReq rsyncPassRecordReq = builder.build();
+        final Msg.Message.RsyncPassRecordReq rsyncPassRecordReq = builder.build();
         Msg.Message message = Msg.Message.newBuilder()
                 .setRsyncPassRecordReq(rsyncPassRecordReq)
                 .build();
@@ -93,17 +127,17 @@ public class UploadRecord {
                 Msg.Message.RsyncPassRecordRsp rsyncPassRecordRsp = message.getRsyncPassRecordRsp();
                 int status = rsyncPassRecordRsp.getStatus();
                 long time2 = System.currentTimeMillis();
-                LogUtils.d(TAG,"上传时间 = "+(time2-time1));
+                LogUtils.d(TAG, "上传耗时 = " + (time2 - time1) + " " + rsyncPassRecordRsp.toString());
                 if (status == 0) {
                     uploadSuccess(accessRecordBeanDao, accessRecordBean);
                 } else {
-                    uploadFail();
+                    uploadFail(accessRecordBean);
                 }
             }
 
             @Override
             public void onTimeout() {
-                uploadFail();
+                uploadFail(accessRecordBean);
             }
         });
     }
@@ -120,7 +154,7 @@ public class UploadRecord {
         accessRecordBeanDao.delete(bean);
 
         FileUtil.deleteFile(bean.getAccessImage());
-
+        LogUtils.d(TAG, "上传流水成功 = " + bean.getPersonName());
         try {
             uploadRecord();
         } catch (Exception e) {
@@ -132,7 +166,8 @@ public class UploadRecord {
     /**
      * 上传失败
      */
-    private static void uploadFail() {
+    private static void uploadFail(AccessRecordBean bean) {
+        LogUtils.d(TAG, "上传流水失败 = " + bean.getPersonName());
         UPLOADING = false;
     }
 }

@@ -1,12 +1,11 @@
 package com.thdtek.acs.terminal.thread;
 
-import android.nfc.Tag;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.thdtek.acs.terminal.bean.FacePairEvent;
+import com.thdtek.acs.terminal.bean.PairSuccessOtherBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.face.FacePairStatus;
 import com.thdtek.acs.terminal.face.FaceTempData;
@@ -18,7 +17,6 @@ import com.thdtek.acs.terminal.util.camera.CameraUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Time:2018/10/31
@@ -52,6 +50,9 @@ public class FacePairFinishThread extends Thread {
 
     public void close() {
         mLoop = false;
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
     }
 
     @Override
@@ -195,6 +196,7 @@ public class FacePairFinishThread extends Thread {
         }
         mHandler.removeMessages(HANDLER_MESSAGE);
         FacePairStatus.getInstance().pairSuccess(personBean,
+                new PairSuccessOtherBean(),
                 facePairEvent.getImage(),
                 facePairEvent.getRate(),
                 facePairEvent.getFaceRect(),

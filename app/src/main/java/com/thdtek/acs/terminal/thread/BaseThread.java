@@ -13,14 +13,17 @@ import com.intellif.ImageFormat;
 import com.thdtek.acs.terminal.bean.CameraPreviewBean;
 import com.thdtek.acs.terminal.bean.FaceAttribute;
 import com.thdtek.acs.terminal.bean.FaceFeatureHexBean;
+import com.thdtek.acs.terminal.bean.IDBean;
 import com.thdtek.acs.terminal.bean.ImageSaveBean;
 import com.thdtek.acs.terminal.bean.NowPicFeatureHexBean;
 import com.thdtek.acs.terminal.bean.PairBean;
+import com.thdtek.acs.terminal.bean.PairSuccessOtherBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.dao.FaceFeatureDao;
 import com.thdtek.acs.terminal.dao.NowPicFeatureDao;
 import com.thdtek.acs.terminal.dao.PersonDao;
 import com.thdtek.acs.terminal.face.FacePairStatus;
+import com.thdtek.acs.terminal.face.FaceTempData;
 import com.thdtek.acs.terminal.face.FaceUtil;
 import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.AuthorityUtil;
@@ -33,6 +36,7 @@ import com.thdtek.facelibrary.FaceApi;
 import com.thdtek.facelibrary.FaceFeature;
 import com.thdtek.facelibrary.FaceRect;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -204,17 +208,18 @@ public abstract class BaseThread extends Thread {
                         handleData(faceUtils, take);
                     }
                 } else {
-                    LogUtils.d(TAG, "======  " + TAG + "准备接受相机捕获数据 ======");
+                    LogUtils.d(TAG, "======  " + TAG + "准备接受相机捕获数据 ====== " + mQueue.size());
                     Object take = mQueue.take();
                     mContinueOnce = false;
                     if (take instanceof CameraPreviewBean) {
-                        LogUtils.d(TAG, "======  " + TAG + "收到相机捕获数据 ======");
+                        LogUtils.d(TAG, "======  " + TAG + "收到相机捕获数据 ====== "+mQueue.size());
                         CameraPreviewBean bean = (CameraPreviewBean) take;
                         handleData(faceUtils, bean.getData(), bean.getRect(), bean.getType());
                     } else if (take instanceof ImageSaveBean) {
                         ImageSaveBean bean = (ImageSaveBean) take;
                         handleData(faceUtils, bean);
                     }
+
                 }
 
             } catch (InterruptedException e) {
@@ -222,6 +227,7 @@ public abstract class BaseThread extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
                 handleFail(Const.OPEN_DOOR_TYPE_FACE, "====== " + TAG + " 匹配时发生异常 = " + e.getMessage(), Const.FACE_PAIR_ERROR_CODE_EXCEPTION);
+                setSynchronousQueueError(e.getMessage());
                 SystemClock.sleep(2000);
                 CameraUtil.resetCameraVariable(true);
             }
@@ -258,23 +264,25 @@ public abstract class BaseThread extends Thread {
                         handleData(faceApi, take);
                     }
                 } else {
-                    LogUtils.d(TAG, "====== " + TAG + " 准备接受相机捕获数据 ======");
+                    LogUtils.d(TAG, "====== " + TAG + " 准备接受相机捕获数据 ====== " + mQueue.size());
                     Object take = mQueue.take();
                     mContinueOnce = false;
                     if (take instanceof CameraPreviewBean) {
-                        LogUtils.d(TAG, "====== " + TAG + " 收到相机捕获数据 ======");
+                        LogUtils.d(TAG, "====== " + TAG + " 收到相机捕获数据 ====== "+mQueue.size());
                         CameraPreviewBean bean = (CameraPreviewBean) take;
                         handleData(faceApi, bean.getData(), bean.getRect(), bean.getType());
                     } else if (take instanceof ImageSaveBean) {
                         ImageSaveBean bean = (ImageSaveBean) take;
                         handleData(faceApi, bean);
                     }
+
                 }
             } catch (InterruptedException e) {
                 LogUtils.e(TAG, "====== " + TAG + " InterruptedException = " + e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
                 handleFail(Const.OPEN_DOOR_TYPE_FACE, "====== " + TAG + " 匹配时发生异常 = " + e.getMessage(), Const.FACE_PAIR_ERROR_CODE_EXCEPTION);
+                setSynchronousQueueError(e.getMessage());
                 SystemClock.sleep(2000);
                 CameraUtil.resetCameraVariable(true);
             }
@@ -284,22 +292,87 @@ public abstract class BaseThread extends Thread {
     }
 
 
-    public Object getFaceRect(Object object, byte[] imageData, boolean cameraData) {
+    public Object getFaceRect(Object object, byte[] imageData, boolean cameraData, int width, int height) {
         //默认的bitmap数据是RGB格式的数据,imageData也是RGB模式数据,虹软需要转成yuv格式,云天励飞不用
         if (mCurrentFaceAlgorithm == FACE_ALGORITHM_HONGRUAN) {
-            return FaceUtil.getInstance().getHongRuanRect(object, imageData, cameraData);
+            FaceApi faceApi = (FaceApi) object;
+            byte[] yuv420sp = getHongRuanImageData(imageData, cameraData);
+            FaceRect faceRect = faceApi.MaxFaceFeatureDetectImage(yuv420sp, width, height);
+            if (faceRect == null || faceRect.rect == null || faceRect.rect.width() == 0 || faceRect.rect.height() == 0) {
+                return null;
+            } else {
+                return faceRect;
+            }
         } else if (mCurrentFaceAlgorithm == FACE_ALGORITHM_YUNTIANLIFEI) {
-            return FaceUtil.getInstance().getYunTianLiFeiRect(object, imageData, cameraData);
+            FaceUtils faceUtils = (FaceUtils) object;
+            byte[] imageClone = new byte[imageData.length];
+            System.arraycopy(imageData, 0, imageClone, 0, imageClone.length);
+            //云天励飞算法所有数据都是bgr格式,需要转成bgr格式
+            byte[] pixelsBGR = imageClone;
+            if (!cameraData) {
+                Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageClone, 0, imageClone.length);
+                pixelsBGR = FaceTools.getPixelsBGR(bitmap1);
+            }
+            if (pixelsBGR == null) {
+                return null;
+            }
+            com.intellif.FaceRect[] faceRects = faceUtils.IFaceRecSDK_Face_Detect(mSdkDetectCreate, pixelsBGR, width, height, ImageFormat.IFACEREC_IMG_BGR);
+            if (faceRects == null || faceRects.length == 0) {
+                return null;
+            } else {
+                return getMaxFace(faceRects);
+            }
+
         } else {
             return null;
         }
     }
 
-    public synchronized byte[] getFaceFeature(Object object, byte[] imageData, Object faceRect, boolean cameraData) {
+    public com.intellif.FaceRect getMaxFace(com.intellif.FaceRect[] faceRects) {
+        int maxIndex = 0;
+        int maxHeight = faceRects[0].dRectBottom - faceRects[0].dRectTop;
+        for (int i = 1; i < faceRects.length; i++) {
+            int height = faceRects[i].dRectBottom - faceRects[i].dRectTop;
+            if (height > maxHeight) {
+                maxHeight = height;
+                maxIndex = i;
+            }
+        }
+        return faceRects[maxIndex];
+    }
+
+    public synchronized byte[] getFaceFeature(Object object, byte[] imageData, Object faceRect, boolean cameraData, int width, int height) {
         if (mCurrentFaceAlgorithm == FACE_ALGORITHM_HONGRUAN) {
-            return FaceUtil.getInstance().getHongRuanFaceFeature(object, imageData, faceRect, cameraData);
+            FaceApi faceApi = (FaceApi) object;
+            FaceRect rect = (FaceRect) faceRect;
+            byte[] yuv420sp = getHongRuanImageData(imageData, cameraData);
+            FaceFeature faceFeature = faceApi.ExtractMaxFaceFeatur(yuv420sp, width, height, rect);
+            if (faceFeature == null || faceFeature.getFeatureBytes() == null || faceFeature.getFeatureBytes().length <= 4) {
+                return null;
+            } else {
+                return faceFeature.getFeatureBytes();
+            }
         } else if (mCurrentFaceAlgorithm == FACE_ALGORITHM_YUNTIANLIFEI) {
-            return FaceUtil.getInstance().getYunTianLiFeiFaceFeature(object, imageData, faceRect, cameraData);
+            FaceUtils faceUtils = (FaceUtils) object;
+            com.intellif.FaceRect rect = (com.intellif.FaceRect) faceRect;
+            byte[] imageClone = new byte[imageData.length];
+            System.arraycopy(imageData, 0, imageClone, 0, imageClone.length);
+
+            byte[] pixelsBGR = imageClone;
+            if (!cameraData) {
+                Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageClone, 0, imageClone.length);
+                pixelsBGR = FaceTools.getPixelsBGR(bitmap1);
+            }
+            if (pixelsBGR == null) {
+                return null;
+            }
+            byte[] bytes = faceUtils.IFaceRecSDK_Face_Feature(mSdkExtractCreate, pixelsBGR, width, height, rect, ImageFormat.IFACEREC_IMG_BGR);
+
+            if (bytes == null || bytes.length == 0) {
+                return null;
+            } else {
+                return bytes;
+            }
         } else {
             return null;
         }
@@ -308,21 +381,51 @@ public abstract class BaseThread extends Thread {
     public FaceAttribute getFaceAttribute(Object object, byte[] imageData, Object faceRect, int type, boolean cameraData) {
 
         if (mCurrentFaceAlgorithm == FACE_ALGORITHM_HONGRUAN) {
+            FaceApi faceApi = (FaceApi) object;
+            FaceRect rect = (FaceRect) faceRect;
             return null;
         } else if (mCurrentFaceAlgorithm == FACE_ALGORITHM_YUNTIANLIFEI) {
-            return FaceUtil.getInstance().getYunTianLiFeiAttribute(object, imageData, faceRect, type, cameraData);
+            com.intellif.FaceRect rect = (com.intellif.FaceRect) faceRect;
+            FaceUtils faceUtils = (FaceUtils) object;
+            byte[] bytes = new byte[imageData.length];
+            System.arraycopy(imageData, 0, bytes, 0, bytes.length);
+
+            FaceRecAttrResult[] faceRecAttrResults = faceUtils
+                    .IFaceRecSDK_AttributePredict(mSdkPredictorCreate, imageData, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT, rect, type, ImageFormat.IFACEREC_IMG_BGR);
+            if (type == Const.IFACEREC_QUALITY_MASK) {
+                //侧脸检测
+                return new FaceAttribute(faceRecAttrResults);
+            } else if (type == Const.IFACEREC_LIVE_MASK) {
+                //活体检测
+                return new FaceAttribute(faceRecAttrResults);
+            } else {
+                return new FaceAttribute(faceRecAttrResults);
+            }
+
         } else {
             return null;
         }
-
     }
 
+    public byte[] getHongRuanImageData(byte[] imageData, boolean cameraData) {
+        byte[] yuv420sp = null;
+        if (cameraData) {
+            yuv420sp = imageData;
+        } else {
+            Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+            yuv420sp = Bmp2YUV.getYUV420sp(bitmap1.getWidth(), bitmap1.getHeight(), bitmap1);
+        }
+
+        return yuv420sp;
+    }
 
     public float getPairNumber(Object object, byte[] faceFeatureOne, byte[] faceFeatureTwo) {
         if (mCurrentFaceAlgorithm == FACE_ALGORITHM_HONGRUAN) {
-            return FaceUtil.getInstance().getHongRuanPairNumber(object, faceFeatureOne, faceFeatureTwo);
+            FaceApi faceApi = (FaceApi) object;
+            return faceApi.FacePairMatching(faceFeatureOne, faceFeatureTwo);
         } else if (mCurrentFaceAlgorithm == FACE_ALGORITHM_YUNTIANLIFEI) {
-            return FaceUtil.getInstance().getYunTianLiFeiPairNumber(object, faceFeatureOne, faceFeatureTwo);
+            FaceUtils faceUtils = (FaceUtils) object;
+            return faceUtils.IFaceRecSDK_FeatureCompare(mSdkCompareCreate, faceFeatureOne, faceFeatureTwo);
         } else {
             return 0f;
         }
@@ -412,6 +515,9 @@ public abstract class BaseThread extends Thread {
 //        for (int i = index; i < size; i = i + 3) {
         for (int i = 0; i < size; i++) {
             count++;
+            if (mPeopleList.size() <= i) {
+                continue;
+            }
             PersonBean peopleBean = mPeopleList.get(i);
             FaceFeatureHexBean faceFeatureHexBean = mFaceMap.get(peopleBean.getAuth_id());
             if (faceFeatureHexBean == null) {
@@ -429,6 +535,21 @@ public abstract class BaseThread extends Thread {
         return map;
     }
 
+    public Bitmap getFaceImageDate(IDBean idMessage) {
+
+        if (idMessage == null) {
+            LogUtils.d(TAG, "人脸+身份证 : 获取身份证图片失败");
+            return null;
+        }
+        Bitmap bitmap = BitmapFactory.decodeFile(idMessage.getImage());
+        if (bitmap == null) {
+            LogUtils.d(TAG, "人脸+身份证 : 获取身份证图片失败");
+            return null;
+        }
+//        return bitmap;
+        return BitmapUtil.getFull640Bitmap(bitmap);
+//        return Bmp2YUV.getYUV420sp(Const.CAMERA_BITMAP_WIDTH, Const.CAMERA_BITMAP_HEIGHT, backBitmap);
+    }
 
     public void handleData(Object object, byte[] imageData, Object faceRect, String type) {
 
@@ -465,6 +586,10 @@ public abstract class BaseThread extends Thread {
         return time && count && checkWeekly;
     }
 
+    public void setSynchronousQueueError(String msg) {
+
+    }
+
     public void handlePairing() {
         FacePairStatus.getInstance().pairIng();
     }
@@ -474,8 +599,9 @@ public abstract class BaseThread extends Thread {
         FacePairStatus.getInstance().pairFail(type, msg, code);
     }
 
-    public void handleSuccess(PersonBean personBean, byte[] image, float rate, Rect rect, int insert, boolean cameraData) {
-        FacePairStatus.getInstance().pairSuccess(personBean, image, rate, rect, insert, cameraData);
+    public void handleSuccess(PersonBean personBean, PairSuccessOtherBean pairSuccessOtherBean, byte[] image, float rate, Rect rect, int insert, boolean cameraData) {
+
+        FacePairStatus.getInstance().pairSuccess(personBean, pairSuccessOtherBean,image, rate, rect, insert, cameraData);
     }
 
     public void handleFinish() {

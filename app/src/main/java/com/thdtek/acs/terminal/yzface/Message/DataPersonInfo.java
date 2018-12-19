@@ -199,8 +199,8 @@ public class DataPersonInfo {
     }
 
     public void setStatus(byte[] status) {
-        if(termOfValidity.length != 1){
-            throw new IllegalArgumentException("termOfValidity.length != 1  !!!");
+        if(status.length != 1){
+            throw new IllegalArgumentException("status.length != 1  !!!");
         }
         this.status = status;
     }

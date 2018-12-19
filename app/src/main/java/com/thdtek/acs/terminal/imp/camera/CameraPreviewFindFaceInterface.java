@@ -3,6 +3,7 @@ package com.thdtek.acs.terminal.imp.camera;
 import android.graphics.Rect;
 
 import com.thdtek.acs.terminal.bean.AccessRecordBean;
+import com.thdtek.acs.terminal.bean.FacePairBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.facelibrary.FaceRect;
 
@@ -26,7 +27,7 @@ public interface CameraPreviewFindFaceInterface {
     void facePairing();
 
     //匹配成功
-    void facePairSuccess(PersonBean personBean, int samePeople);
+    void facePairSuccess(FacePairBean facePairBean, int samePeople);
 
     //匹配失败
     void facePairFail(String msg,int code);

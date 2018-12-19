@@ -98,20 +98,14 @@ public class PersonDaoForHttp {
 //    }
 
     public void deleteByFid(String[] idsArr){
-        if(idsArr.length == 0){
-            dao.deleteAll();
-
-            clearCache();
-        }else {
-            for (int i = 0; i < idsArr.length; i++) {
-                String fid = idsArr[i];
-                PersonBean bean = queryByFid(fid);
-                if(bean != null){
-                    dao.delete(bean);
-                }
-
-                clearCache(fid);
+        for (int i = 0; i < idsArr.length; i++) {
+            String fid = idsArr[i];
+            PersonBean bean = queryByFid(fid);
+            if(bean != null){
+                dao.delete(bean);
             }
+
+            clearCache(fid);
         }
 
     }
@@ -148,6 +142,7 @@ public class PersonDaoForHttp {
             PersonBean next = it.next();
             if(fid.equals(next.getFid())){
                 lst.remove(next);
+                break;
             }
         }
     }

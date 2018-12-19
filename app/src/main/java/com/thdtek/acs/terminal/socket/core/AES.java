@@ -8,6 +8,7 @@ import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.ByteFormatTransferUtils;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 
 public class AES {
     private static final String TAG = AES.class.getSimpleName();

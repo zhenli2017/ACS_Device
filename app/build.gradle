@@ -8,8 +8,8 @@ android {
         applicationId "com.thdtek.acs.terminal"
         minSdkVersion 22
         targetSdkVersion 26
-        versionCode 114
-        versionName "1.1.114"
+        versionCode 143
+        versionName "1.1.143"
         multiDexEnabled = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
@@ -48,7 +48,7 @@ android {
     }
 }
 greendao {
-    schemaVersion 28
+    schemaVersion 34
     daoPackage 'greendao'
     targetGenDir 'src/main/java'
 }
@@ -99,7 +99,6 @@ dependencies {
     compile 'com.google.protobuf:protoc:3.1.0'
     compile 'com.google.protobuf:protobuf-java-util:3.5.0'
     compile 'com.tencent.bugly:crashreport:2.6.6'
-    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.airbnb.android:lottie:2.5.5'
     implementation 'org.nanohttpd:nanohttpd:2.2.0'

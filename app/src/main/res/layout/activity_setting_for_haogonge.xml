@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/color_bg"
+    tools:context=".haogonge.SettingForHaogongeActivity">
+
+    <include layout="@layout/toolbar_haogonge_setting"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/page_1"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@color/color_bg"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+
+
+            <TextView
+                android:id="@+id/tv_sn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_30dp"
+                android:text="@string/setting_for_haogonge_sn"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_sn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:background="@null"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_ip"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_ip"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:background="@null"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_url"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_url"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:inputType="textUri"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_model"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_model"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_model"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:inputType="text"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_code"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_code"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:inputType="text"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/page_2"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:background="@color/color_bg"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+
+
+            <TextView
+                android:id="@+id/tv_mac"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_30dp"
+                android:text="@string/setting_for_haogonge_eth_mac"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_mac"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:background="@null"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_interface_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_interface_version"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_interface_version"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:background="@null"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_card_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_card_id"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_card_id"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:inputType="text"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_compare_threshold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/setting_for_haogonge_compare_threshold"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_compare_threshold"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:inputType="number"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_huoti"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_marginLeft="@dimen/dimen_37dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:layout_marginTop="@dimen/dimen_23dp"
+                android:text="@string/huoti"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <com.thdtek.acs.terminal.view.CustomEditText
+                android:id="@+id/et_huoti"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_55dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@null"
+                android:inputType="number"
+                android:paddingLeft="@dimen/dimen_17dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"/>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_marginBottom="@dimen/dimen_70dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/bt_1"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/dimen_45dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@drawable/shape_server_btn_bg"
+                android:text="@string/setting_for_haogonge_pre_page"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+
+            <Button
+                android:id="@+id/bt_2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/dimen_45dp"
+                android:layout_marginLeft="@dimen/dimen_20dp"
+                android:layout_marginRight="@dimen/dimen_20dp"
+                android:background="@drawable/shape_server_btn_bg"
+                android:text="@string/setting_for_haogonge_next_page"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_18sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

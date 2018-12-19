@@ -3,6 +3,7 @@ package com.thdtek.acs.terminal.thread;
 import android.os.SystemClock;
 import android.text.TextUtils;
 
+import com.thdtek.acs.terminal.R;
 import com.thdtek.acs.terminal.base.MyApplication;
 import com.thdtek.acs.terminal.bean.ICEvent;
 import com.thdtek.acs.terminal.bean.PersonBean;
@@ -78,43 +79,73 @@ public class ReadIcSerialThread extends Thread {
                 String parseIcNumber = WGUtil.parseIcNumber(substring).toLowerCase().trim();
                 PersonBean bean = PersonDao.query2ICCard(parseIcNumber);
                 if (bean == null) {
-                    LogUtils.d(TAG, "没有这个人的IC卡数据");
-                    EventBus.getDefault().post(new ICEvent("", "IC卡未登记,请登记", Const.WG_0));
+                    LogUtils.d(TAG, "没有这个人的IC卡数据 " +parseIcNumber);
+                    EventBus.getDefault().post(new ICEvent("", MyApplication.getContext().getString(R.string.ic_card_no_register), AppSettingUtil.getConfig().getDoorType()));
                     continue;
                 }
                 //3.输出维根信息
                 if (AppSettingUtil.getConfig().getOpenDoorType() == Const.OPEN_DOOR_TYPE_I_C) {
-                    //4.打开继电器
-                    HWUtil.openDoorRelay();
+                    int doorType = AppSettingUtil.getConfig().getDoorType();
                     //直接开门
-                    if (AppSettingUtil.getConfig().getDoorType() == Const.WG_26) {
+                    if (doorType == Const.WG_26) {
                         //维根 26
-                        EventBus.getDefault().post(new ICEvent("维根26", WGUtil.parseIcNumber(substring), Const.WG_26));
-                        HWUtil.openDoorWeigen26(WGUtil.parseWG26(substring) + "");
+                        EventBus.getDefault().post(new ICEvent("维根26", WGUtil.parseWG16To10(parseIcNumber), Const.WG_26));
+                        HWUtil.openDoorWeigen26(parseIcNumber);
 
-                    } else if (AppSettingUtil.getConfig().getDoorType() == Const.WG_34) {
+                    } else if (doorType == Const.WG_26_0) {
+                        //4.打开继电器
+                        HWUtil.openDoorRelay();
+                        EventBus.getDefault().post(new ICEvent("维根26", WGUtil.parseWG16To10(parseIcNumber), Const.WG_26));
+                        HWUtil.openDoorWeigen26(parseIcNumber);
+                    } else if (doorType == Const.WG_34) {
                         //维根 34,16进制的数翻转 , 1:直接转成 10 进制数,输出到维根,2:抛弃第一个字节,后面3个字节转成10进制数,前面补0后输出到维根34
                         try {
-                            HWUtil.openDoorWeigen34(WGUtil.parseWG34(substring) + "");
-                            EventBus.getDefault().post(new ICEvent("维根34", WGUtil.parseIcNumber(substring), Const.WG_34));
+                            HWUtil.openDoorWeigen34(parseIcNumber);
+                            EventBus.getDefault().post(new ICEvent("维根34", WGUtil.parseWG16To10(parseIcNumber), Const.WG_34));
                         } catch (Exception e) {
                             EventBus.getDefault().post(new ICEvent("维根34", e.getMessage(), Const.WG_34));
                         }
-                    } else if (AppSettingUtil.getConfig().getDoorType() == Const.WG_0) {
-                        EventBus.getDefault().post(new ICEvent("继电器", parseIcNumber, Const.WG_0));
+                    } else if (doorType == Const.WG_34_0) {
+                        //4.打开继电器
+                        HWUtil.openDoorRelay();
+                        try {
+                            HWUtil.openDoorWeigen34(parseIcNumber);
+                            EventBus.getDefault().post(new ICEvent("维根34",WGUtil.parseWG16To10(parseIcNumber), Const.WG_34));
+                        } catch (Exception e) {
+                            EventBus.getDefault().post(new ICEvent("维根34", e.getMessage(), Const.WG_34));
+                        }
+                    } else if (doorType == Const.WG_66) {
+                        //维根 66
+                        HWUtil.openDoorWeigen66(parseIcNumber);
+                        EventBus.getDefault().post(new ICEvent("WG 66", WGUtil.parseWG16To10(parseIcNumber), Const.WG_66));
+                    } else if (doorType == Const.WG_66_0) {
+                        //3.打开继电器
+                        HWUtil.openDoorRelay();
+                        //维根 26
+                        HWUtil.openDoorWeigen66(parseIcNumber);
+                        EventBus.getDefault().post(new ICEvent("WG 66", WGUtil.parseWG16To10(parseIcNumber), Const.WG_66));
+                    } else if (doorType == Const.WG_0) {
+                        //4.打开继电器
+                        HWUtil.openDoorRelay();
+                        EventBus.getDefault().post(new ICEvent("继电器", "", Const.WG_0));
                     }
                     //6.暂停和关门
                     SystemClock.sleep(AppSettingUtil.getConfig().getOpenDoorContinueTime());
-                    HWUtil.closeDoor();
+                    if (doorType == Const.WG_34_0
+                            || doorType == Const.WG_26_0
+                            || doorType == Const.WG_0
+                            || doorType == Const.WG_66_0) {
+
+                        //7.关门和重置IC卡检测
+                        HWUtil.closeDoor();
+                    }
 
                 } else if (AppSettingUtil.getConfig().getOpenDoorType() == Const.OPEN_DOOR_TYPE_FACE_IC) {
                     //需要和人脸匹配
-                    substring = substring.toLowerCase().trim();
-                    substring = WGUtil.parseIcNumber(substring);
                     FaceTempData.getInstance().setHaveICMessage(true);
-                    FaceTempData.getInstance().setIcMessage(substring);
+                    FaceTempData.getInstance().setIcMessage(parseIcNumber);
                     FacePairStatus.getInstance().facePairThreadContinueOnce();
-                    SystemClock.sleep(3000);
+                    SystemClock.sleep(2000);
                     FaceTempData.getInstance().setHaveICMessage(false);
                 }
             } catch (Exception e) {

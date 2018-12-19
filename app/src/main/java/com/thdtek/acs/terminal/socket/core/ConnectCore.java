@@ -9,6 +9,7 @@ import com.thdtek.acs.terminal.base.ThreadPool;
 import com.thdtek.acs.terminal.thread.ThreadManager;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +75,7 @@ public abstract class ConnectCore {
             @Override
             public void run() {
                 try {
-                    if (Const.IS_OPEN_SSL) {
+                    if (SwitchConst.IS_OPEN_SSL) {
                         //取得TLS协议的SSLContext实例
                         sslContext = SSLContext.getInstance("TLSv1");
                         //取得BKS类型的本地密钥库实例，这里特别注意：手机只支持BKS密钥库，不支持Java默认的JKS密钥库
@@ -348,6 +349,7 @@ public abstract class ConnectCore {
 
                     //读取超时
                     if (readLastTimestamp != 0 && getReadIdleStateTime() >= readTimeout) {
+
 
 
                         onReadTimeout();

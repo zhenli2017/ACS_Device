@@ -37,6 +37,11 @@ public class UploadRecordForHttp {
     private AccessRecordBeanDao dao = DBUtil.getDaoSession().getAccessRecordBeanDao();
     private RecordDaoForHttp recordDaoForHttp = new RecordDaoForHttp();
     private List<AccessRecordBean> mAccessRecordBeanList;
+    private static OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build();
 
     public void upload(List<AccessRecordBean> lst) {
         mAccessRecordBeanList = lst;
@@ -58,12 +63,14 @@ public class UploadRecordForHttp {
             return;
         }
 
+        String t = String.valueOf(((double)(bean.getTime()))/1000);
+
         FormBody build = null;
         try {
             build = new FormBody.Builder()
                     .addEncoded("deviceSn", URLEncoder.encode(AppSettingUtil.getConfig().getDeviceSn(), "utf-8"))
                     .addEncoded("personID", URLEncoder.encode(bean.getFid(), "utf-8"))
-                    .addEncoded("ts", URLEncoder.encode(bean.getTime() + "", "utf-8"))
+                    .addEncoded("ts", URLEncoder.encode(t, "utf-8"))
                     .addEncoded("passType", URLEncoder.encode(bean.getType() + "", "utf-8"))
                     .addEncoded("photo", URLEncoder.encode(Base64Utils.ImageToBase64ByLocal(bean.getAccessImage()), "utf-8"))
                     .build();
@@ -72,7 +79,7 @@ public class UploadRecordForHttp {
             build = new FormBody.Builder()
                     .add("deviceSn", AppSettingUtil.getConfig().getDeviceSn())
                     .add("personID", bean.getFid())
-                    .add("ts", bean.getTime() + "")
+                    .add("ts", t)
                     .add("passType", bean.getType() + "")
                     .add("photo", Base64Utils.ImageToBase64ByLocal(bean.getAccessImage()))
                     .build();
@@ -80,11 +87,7 @@ public class UploadRecordForHttp {
 
 
         LogUtils.d(TAG, "上传订单 ... " + url);
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .build();
+
         final Request request = new Request.Builder()
                 .url(url)
                 .header("Content-Length", build.contentLength() + "")
@@ -108,7 +111,7 @@ public class UploadRecordForHttp {
                         FileUtil.deleteFile(bean.getAccessImage());
                         dao.delete(bean);
                     } else {
-                        bean.setUploadToHttp(true);
+                        bean.setUploadToHttp(false);
                         dao.insertOrReplace(bean);
                     }
                     if (mAccessRecordBeanList != null && mAccessRecordBeanList.size() != 0) {

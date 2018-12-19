@@ -53,13 +53,10 @@ public class SystemActivity extends BaseActivity {
         list.add(new SystemBean("", getString(R.string.device_register_time), String.format(Locale.getDefault(), "%tF %<tT", AppSettingUtil.getConfig().getDeviceRegisterTime() * 1000), 1));
         list.add(new SystemBean("", getString(R.string.device_open_conitue_time), String.format(Locale.getDefault(), "%.2f", SystemClock.elapsedRealtime() / 1000f / 60f / 60f) + getString(R.string.hour), 1));
         try {
-            list.add(new SystemBean("", getString(R.string.device_people_size), PersonDao.getDao().queryBuilder().list().size() + "", 1));
-
+            list.add(new SystemBean("", getString(R.string.device_people_size), PersonDao.getDao().queryBuilder().list().size() + "/8000", 1));
         } catch (Exception e) {
-
             list.add(new SystemBean("", getString(R.string.device_people_size), getString(R.string.read_person_size_fail), 1));
         }
-
         SystemAdapter systemAdapter = new SystemAdapter(this, list);
         mListView.setAdapter(systemAdapter);
     }

@@ -18,6 +18,7 @@ import com.thdtek.acs.terminal.thread.FacePairThread9;
 import com.thdtek.acs.terminal.thread.ImageSaveThread;
 import com.thdtek.acs.terminal.thread.PairThreadThree;
 import com.thdtek.acs.terminal.thread.PairThreadTwo;
+import com.thdtek.acs.terminal.thread.ReadIcOrIdThread2;
 import com.thdtek.acs.terminal.thread.ReadIcSerialThread;
 import com.thdtek.acs.terminal.thread.SerialThread;
 import com.thdtek.acs.terminal.thread.ThreadManager;
@@ -51,11 +52,12 @@ public class FaceUtil implements FaceTrackListener {
     private int mFailColor;
 
     private ReadIcSerialThread mReadIcSerialThread;
-    private int mSdkCaptureCreate = 0;
+    public static int mSdkCaptureCreate = 0;
     public static int mSdkDetectCreate = 0;
     public static int mSdkExtractCreate = 0;
     public static int mSdkCompareCreate = 0;
     public static int mSdkPredictorCreate = 0;
+    private ReadIcOrIdThread2 mReadIcOrIdThread2;
 
     private FaceUtil() {
 
@@ -71,6 +73,10 @@ public class FaceUtil implements FaceTrackListener {
             }
         }
         return mFaceUtil;
+    }
+
+    public FaceApi getFaceApiCamera() {
+        return mFaceApiCamera;
     }
 
     public void setFindFaceInterface(CameraPreviewFindFaceInterface findFaceInterface) {
@@ -93,7 +99,11 @@ public class FaceUtil implements FaceTrackListener {
             case 1:
                 LogUtils.d(TAG, "====== 初始化 IFaceRecSDK_CapturerCreate");
                 mSdkCaptureCreate = FaceUtils.getInstance().IFaceRecSDK_CapturerCreate(Const.MODEL_PATH);
-                FaceUtils.getInstance().IFaceRecSDK_SetCaptureCallBack(mSdkCaptureCreate, this);
+                if (!Const.PERSON_TYPE_CAMERA_PHOTO) {
+                    LogUtils.d(TAG, "====== 初始化 IFaceRecSDK_CapturerCreate 添加回调");
+                    initSdkCaptureCallBack();
+                }
+                LogUtils.e(TAG, "SDK Capturer Create = " + mSdkCaptureCreate);
                 break;
             case 2:
                 //人脸单图检测句柄初始化
@@ -151,6 +161,8 @@ public class FaceUtil implements FaceTrackListener {
                 LogUtils.d(TAG, "====== 初始化 串口读写线程");
                 mReadIcSerialThread = new ReadIcSerialThread();
                 mReadIcSerialThread.start();
+                mReadIcOrIdThread2 = new ReadIcOrIdThread2();
+                mReadIcOrIdThread2.start();
                 LogUtils.d(TAG, "====== 初始化 所有的初始化完成后需要关闭串口写出");
                 SerialThread.getInstance().close(false);
                 break;
@@ -159,6 +171,10 @@ public class FaceUtil implements FaceTrackListener {
                 break;
         }
         return end;
+    }
+
+    public void initSdkCaptureCallBack() {
+        FaceUtils.getInstance().IFaceRecSDK_SetCaptureCallBack(mSdkCaptureCreate, this);
     }
 
     private long initHongRuan(SerialThread serialThread) throws InterruptedException, IOException {
@@ -175,116 +191,6 @@ public class FaceUtil implements FaceTrackListener {
         }
         return mFaceApiCamera.Init(signToken);
     }
-
-    public byte[] getHongRuanImageData(byte[] imageData, boolean cameraData) {
-        byte[] yuv420sp = null;
-        if (cameraData) {
-            yuv420sp = imageData;
-        } else {
-            Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-            yuv420sp = Bmp2YUV.getYUV420sp(bitmap1.getWidth(), bitmap1.getHeight(), bitmap1);
-        }
-
-        return yuv420sp;
-    }
-
-    public Object getHongRuanRect(Object object, byte[] imageData, boolean cameraData) {
-        FaceApi faceApi = (FaceApi) object;
-        byte[] yuv420sp = getHongRuanImageData(imageData, cameraData);
-        FaceRect faceRect = faceApi.MaxFaceFeatureDetectImage(yuv420sp, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
-        if (faceRect == null || faceRect.rect == null || faceRect.rect.width() == 0 || faceRect.rect.height() == 0) {
-            return null;
-        } else {
-            return faceRect;
-        }
-    }
-
-    public byte[] getHongRuanFaceFeature(Object object, byte[] imageData, Object faceRect, boolean cameraData) {
-        FaceApi faceApi = (FaceApi) object;
-        FaceRect rect = (FaceRect) faceRect;
-        byte[] yuv420sp = getHongRuanImageData(imageData, cameraData);
-        FaceFeature faceFeature = faceApi.ExtractMaxFaceFeatur(yuv420sp, Const.CAMERA_BITMAP_WIDTH, Const.CAMERA_BITMAP_HEIGHT, rect);
-        if (faceFeature == null || faceFeature.getFeatureBytes() == null || faceFeature.getFeatureBytes().length <= 4) {
-            return null;
-        } else {
-            return faceFeature.getFeatureBytes();
-        }
-    }
-
-    public float getHongRuanPairNumber(Object object, byte[] faceFeatureOne, byte[] faceFeatureTwo) {
-        FaceApi faceApi = (FaceApi) object;
-        return faceApi.FacePairMatching(faceFeatureOne, faceFeatureTwo);
-    }
-
-    public Object getYunTianLiFeiRect(Object object, byte[] imageData, boolean cameraData) {
-        FaceUtils faceUtils = (FaceUtils) object;
-        byte[] imageClone = new byte[imageData.length];
-        System.arraycopy(imageData, 0, imageClone, 0, imageClone.length);
-        //云天励飞算法所有数据都是bgr格式,需要转成bgr格式
-        byte[] pixelsBGR = imageClone;
-        if (!cameraData) {
-            Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageClone, 0, imageClone.length);
-            pixelsBGR = FaceTools.getPixelsBGR(bitmap1);
-        }
-        if (pixelsBGR == null) {
-            return null;
-        }
-        com.intellif.FaceRect[] faceRects = faceUtils.IFaceRecSDK_Face_Detect(mSdkDetectCreate, pixelsBGR, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT, ImageFormat.IFACEREC_IMG_BGR);
-        if (faceRects == null || faceRects.length == 0) {
-            return null;
-        } else {
-            return faceRects[0];
-        }
-    }
-
-    public byte[] getYunTianLiFeiFaceFeature(Object object, byte[] imageData, Object faceRect, boolean cameraData) {
-        FaceUtils faceUtils = (FaceUtils) object;
-        com.intellif.FaceRect rect = (com.intellif.FaceRect) faceRect;
-        byte[] imageClone = new byte[imageData.length];
-        System.arraycopy(imageData, 0, imageClone, 0, imageClone.length);
-
-        byte[] pixelsBGR = imageClone;
-        if (!cameraData) {
-            Bitmap bitmap1 = BitmapFactory.decodeByteArray(imageClone, 0, imageClone.length);
-            pixelsBGR = FaceTools.getPixelsBGR(bitmap1);
-        }
-        if (pixelsBGR == null) {
-            return null;
-        }
-
-        byte[] bytes = faceUtils.IFaceRecSDK_Face_Feature(mSdkExtractCreate, pixelsBGR, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT, rect, ImageFormat.IFACEREC_IMG_BGR);
-
-        if (bytes == null || bytes.length == 0) {
-            return null;
-        } else {
-            return bytes;
-        }
-    }
-
-    public FaceAttribute getYunTianLiFeiAttribute(Object object, byte[] imageData, Object faceRect, int type, boolean cameraData) {
-        com.intellif.FaceRect rect = (com.intellif.FaceRect) faceRect;
-        FaceUtils faceUtils = (FaceUtils) object;
-        byte[] bytes = new byte[imageData.length];
-        System.arraycopy(imageData, 0, bytes, 0, bytes.length);
-
-        FaceRecAttrResult[] faceRecAttrResults = faceUtils
-                .IFaceRecSDK_AttributePredict(mSdkPredictorCreate, imageData, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT, rect, Const.IFACEREC_LIVE_MASK, ImageFormat.IFACEREC_IMG_BGR);
-        if (type == Const.IFACEREC_QUALITY_MASK) {
-            //侧脸检测
-            return new FaceAttribute(faceRecAttrResults);
-        } else if (type == Const.IFACEREC_LIVE_MASK) {
-            //活体检测
-            return new FaceAttribute(faceRecAttrResults);
-        } else {
-            return new FaceAttribute(faceRecAttrResults);
-        }
-    }
-
-    public float getYunTianLiFeiPairNumber(Object object, byte[] faceFeatureOne, byte[] faceFeatureTwo) {
-        FaceUtils faceUtils = (FaceUtils) object;
-        return faceUtils.IFaceRecSDK_FeatureCompare(mSdkCompareCreate, faceFeatureOne, faceFeatureTwo);
-    }
-
 
     /**
      * 释放faceApi
@@ -311,6 +217,9 @@ public class FaceUtil implements FaceTrackListener {
         if (mReadIcSerialThread != null) {
             mReadIcSerialThread.close();
         }
+        if (mReadIcOrIdThread2 != null) {
+            mReadIcOrIdThread2.close();
+        }
         mFaceUtil = null;
         ThreadManager.closeAll();
     }
@@ -333,6 +242,10 @@ public class FaceUtil implements FaceTrackListener {
 //                || rectColor.rect.left * Const.CAMERA_SCALE_NUMBER + rectColor.rect.width() * Const.CAMERA_SCALE_NUMBER > Const.CAMERA_MAX_RIGHT
                 ) {
             mFindFaceInterface.findNotFace(rectColor, Color.TRANSPARENT);
+            return;
+        }
+        if (getFloat(rectColor) < AppSettingUtil.getConfig().getBeginRecoDistance()) {
+            mFindFaceInterface.findNotFace(null, Color.TRANSPARENT);
             return;
         }
         mFindFaceInterface.findFace(rectColor, CameraUtil.PAIR_FACE_SUCCESS_COLOR
@@ -386,6 +299,10 @@ public class FaceUtil implements FaceTrackListener {
             mFindFaceInterface.findNotFace(mRectRed, Color.TRANSPARENT);
 //            System.out.println("width = " + mRectRed.rect.width() + " height = " + mRectRed.rect.height());
 //            LogUtils.e(TAG, "红外摄像头没有检测到人脸");
+            return;
+        }
+        if (getFloat(mRectRed) < AppSettingUtil.getConfig().getBeginRecoDistance()) {
+            mFindFaceInterface.findNotFace(null, Color.TRANSPARENT);
             return;
         }
         //回调准备找人脸
@@ -459,19 +376,6 @@ public class FaceUtil implements FaceTrackListener {
                 Const.CAMERA_PREVIEW_HEIGHT);
     }
 
-    //    private void addToQueue(byte[] colorByte, Object mRectColor) {
-//        try {
-//
-//            byte[] bytes = new byte[colorByte.length];
-//            System.arraycopy(colorByte, 0, bytes, 0, colorByte.length);
-////            ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_DEFAULT));
-//            ThreadManager.clearAllQueue(FacePairThread10.class.getSimpleName());
-//            ThreadManager.getArrayBlockingQueue(FacePairThread10.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_DEFAULT));
-//        } catch (InterruptedException e) {
-//            LogUtils.e(TAG, "mQueue 发生异常 = " + e.getMessage());
-//            CameraUtil.resetCameraVariable(true);
-//        }
-//    }
     private void addToQueue(byte[] colorByte, Object mRectColor) {
         try {
 
@@ -479,17 +383,8 @@ public class FaceUtil implements FaceTrackListener {
             System.arraycopy(colorByte, 0, bytes, 0, colorByte.length);
             if (AppSettingUtil.getConfig().getOpenDoorType() == Const.OPEN_DOOR_TYPE_FACE) {
                 //人脸开门
-                if ((AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_UN_REGISTER
-                        || AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_REGISTER)
-                        && FaceTempData.getInstance().isHaveIdMessage()) {
-                    //开启了访客模式,并且检测到身份证
-                    LogUtils.e(TAG, "============= 访客 : 人脸+身份证");
-                    ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_ID));
-                } else {
-                    //没有开启访客模式
-                    LogUtils.e(TAG, "============= 人脸");
-                    ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_FACE));
-                }
+                ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(
+                        new CameraPreviewBean(bytes, mRectColor, FaceTempData.getInstance().isHaveIdMessage() ? Const.PAIR_TYPE_ID : Const.PAIR_TYPE_FACE));
             } else if (AppSettingUtil.getConfig().getOpenDoorType() == Const.OPEN_DOOR_TYPE_I_C) {
                 //人脸 || IC卡
                 LogUtils.e(TAG, "============= 人脸 || IC卡");
@@ -504,13 +399,7 @@ public class FaceUtil implements FaceTrackListener {
                 }
             } else if (AppSettingUtil.getConfig().getOpenDoorType() == Const.OPEN_DOOR_TYPE_FACE_ID) {
                 //人脸+ID(身份证)
-                if (FaceTempData.getInstance().isHaveIdMessage()) {
-                    //有身份证
-                    LogUtils.e(TAG, "============= 人脸+身份证");
-                    ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_ID));
-                } else {
-                    CameraUtil.resetCameraVariable(true);
-                }
+                ThreadManager.getArrayBlockingQueue(FacePairThread9.class.getSimpleName()).put(new CameraPreviewBean(bytes, mRectColor, Const.PAIR_TYPE_ID));
             }
         } catch (InterruptedException e) {
             LogUtils.e(TAG, "mQueue 发生异常 = " + e.getMessage());
@@ -532,6 +421,10 @@ public class FaceUtil implements FaceTrackListener {
 
         com.intellif.FaceRect maxFace = getMaxFace(faceRects);
 
+        if (getFloat(maxFace) < AppSettingUtil.getConfig().getBeginRecoDistance()) {
+            mFindFaceInterface.findNotFace(null, Color.TRANSPARENT);
+            return;
+        }
         mFindFaceInterface.findFace(maxFace, Color.RED);
         if (CameraUtil.FIND_FACE_LOCK) {
             return;
@@ -541,6 +434,13 @@ public class FaceUtil implements FaceTrackListener {
         addToQueue(bytes, maxFace);
     }
 
+    public float getFloat(com.intellif.FaceRect maxFace) {
+        return (maxFace.dRectRight - maxFace.dRectLeft);
+    }
+
+    public float getFloat(FaceRect maxFace) {
+        return (maxFace.rect.right - maxFace.rect.left);
+    }
 
     public com.intellif.FaceRect getMaxFace(com.intellif.FaceRect[] faceRects) {
         int maxIndex = 0;

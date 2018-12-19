@@ -95,7 +95,7 @@ public class Message {
             throw new IllegalArgumentException(" dataLength !=data.length   !!!");
         }
 
-        if(iLength>1) {
+        if(iLength>=1) {
             this.data = new byte[iLength];
             System.arraycopy(buffer, index, this.data, 0, iLength);
         }

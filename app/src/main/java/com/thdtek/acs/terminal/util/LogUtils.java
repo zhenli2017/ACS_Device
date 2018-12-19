@@ -31,7 +31,7 @@ public class LogUtils {
     //msg的最大长度
     private static final int LOG_MAX_BACK_UP_SIZE = 1;
     //log4j超过最大大小后继续生成文件的个数
-    private static final int LOG_MSG_MAX_LENGTH = 1000;
+    private static final int LOG_MSG_MAX_LENGTH = 500;
     public static final String FORMAT_TIME = "yyyy_MM_dd";
     private static LogBean mLogBean;
 

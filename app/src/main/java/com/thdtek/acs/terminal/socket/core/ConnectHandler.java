@@ -27,8 +27,10 @@ import com.thdtek.acs.terminal.util.DownloadApk;
 import com.thdtek.acs.terminal.util.HWUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.SPUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -370,7 +372,7 @@ public class ConnectHandler {
                 Msg.Message.LoginRsp loginRsp = message.getLoginRsp();
                 LogUtils.d(TAG, "登录 success = " + loginRsp.getStatus());
                 if (loginRsp.getStatus() == 0) {
-                    LogUtils.d(TAG, "登录 成功");
+                    LogUtils.d(TAG, "登录 成功 config = " + message.toString());
                     if (message.hasSetConfigReq()) {
                         AppSettingUtil.updateConfig(message);
                     }
@@ -400,7 +402,6 @@ public class ConnectHandler {
                             config.setDeviceRegisterTime(System.currentTimeMillis() / 1000);
                         }
                         AppSettingUtil.saveConfig(config);
-                        System.out.println(config.toString());
                     }
                 } else if (loginRsp.getStatus() == 5) {
                     sendBroadCast("", "", Const.VIEW_STATUS_NOT_ALIVE);
@@ -450,6 +451,8 @@ public class ConnectHandler {
     private static void sendHeart() {
         final long lastActionId = (long) SPUtils.get(MyApplication.getContext(), Const.DATABASE_LAST_ACTION_ID, 0L);
         String[] romSize = AppSettingUtil.getRomSize();
+        String watchDogVersion = AppUtil.getWatchDogVersion(MyApplication.getContext());
+        LogUtils.d(TAG, "====== 看门狗版本 = " + watchDogVersion);
         final Msg.Message.HeartBeatReq heartBeatReq = Msg.Message.HeartBeatReq.newBuilder()
                 .setLastActionId(lastActionId)
                 .setDeviceElapsedRealtime(SystemClock.elapsedRealtime() / 1000)
@@ -459,7 +462,9 @@ public class ConnectHandler {
                 .setDeviceRegisterTime(AppSettingUtil.getConfig().getDeviceRegisterTime())
                 .setDeviceRomAvailableSize(romSize[0] + " MB")
                 .setDeviceRomSize(romSize[1] + " MB")
+                .setDeviceCpuTemperature(HWUtil.getCpuTemp())
                 .setDeviceIpAddress(HWUtil.getIPAddress())
+                .setWatchdogVersion(watchDogVersion)
                 .build();
         Msg.Message message = Msg.Message.newBuilder()
                 .setHeartBeatReq(heartBeatReq)
@@ -554,4 +559,5 @@ public class ConnectHandler {
         LocalBroadcastManager.getInstance(MyApplication.getContext()).sendBroadcast(intent);
 
     }
+
 }

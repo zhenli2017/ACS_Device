@@ -21,6 +21,9 @@ public class SoundUtil {
 
     private static SoundPool mSoundPool;
     private static int mSoundId;
+    private static SoundPool mSoundPoolShutter;
+    private static int mSoundIdShutter = -1;
+
 
     public static void setVolume(int value) {
         //初始化音频管理器
@@ -42,6 +45,7 @@ public class SoundUtil {
         mAudioManager.setStreamVolume(AudioManager.STREAM_RING, value, AudioManager.FLAG_PLAY_SOUND);
         mAudioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, value, AudioManager.FLAG_PLAY_SOUND);
     }
+
 
     public static void soundWelcome(Context context) {
         if (mSoundPool == null) {
@@ -68,6 +72,28 @@ public class SoundUtil {
     public static void openDoor() {
         ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_RING, ToneGenerator.MAX_VOLUME);
         toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP);
+    }
+
+
+    public static void soundShutter(final int loop) {
+
+        if(mSoundPoolShutter == null){
+            mSoundPoolShutter = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+            mSoundPoolShutter.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+                @Override
+                public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                    soundPool.play(mSoundIdShutter, 1, 1, 1, loop, 1.0f);
+                }
+            });
+        }
+
+        if(mSoundIdShutter == -1){
+            mSoundIdShutter = mSoundPoolShutter.load(MyApplication.getContext(), R.raw.shutter, 1);
+        }
+
+
+        mSoundPoolShutter.play(mSoundIdShutter, 1, 1, 1, loop, 1.0f);
+
     }
 
 }

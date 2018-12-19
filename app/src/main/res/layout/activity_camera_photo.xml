@@ -34,6 +34,282 @@
 
 
     <ImageView
+        android:id="@+id/image_rect_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="90px"
+        android:layout_marginTop="30px"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/image_title_bg"
+        android:layout_width="880px"
+        android:layout_height="82px"
+        android:layout_marginTop="70px"
+        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
+        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
+        app:layout_constraintTop_toTopOf="@id/image_rect_bg"/>
+
+    <TextView
+        android:id="@+id/tv_top_msg"
+        android:layout_width="880px"
+        android:layout_height="82px"
+        android:layout_marginTop="70px"
+        android:gravity="center"
+        android:textColor="@color/color_scan"
+        android:textSize="36px"
+        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
+        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
+        app:layout_constraintTop_toTopOf="@id/image_rect_bg"/>
+
+    <FrameLayout
+        android:id="@+id/framelayout"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:layout_marginTop="50px"
+        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
+        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
+        app:layout_constraintTop_toBottomOf="@id/image_title_bg">
+
+    </FrameLayout>
+
+    <com.thdtek.acs.terminal.view.RectView
+        android:id="@+id/circleFaceView"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:layout_marginTop="50px"
+        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
+        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
+        app:layout_constraintTop_toBottomOf="@id/image_title_bg"/>
+
+
+    <ImageView
+        android:id="@+id/image_camera_photo"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:scaleType="fitXY"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@id/framelayout"
+        app:layout_constraintTop_toTopOf="@id/framelayout"/>
+
+    <RelativeLayout
+        android:id="@+id/line_msg"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:background="@color/black"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@id/framelayout"
+        app:layout_constraintTop_toTopOf="@id/framelayout">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginTop="50px"
+            android:text="姓名 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_sex_and_n"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_name"
+            android:layout_marginTop="20px"
+            android:text="性别 : 民族 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_birthday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_sex_and_n"
+            android:layout_marginTop="20px"
+            android:text="出生 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_birthday"
+            android:layout_marginTop="20px"
+            android:maxWidth="450px"
+            android:text="住址 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_id_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_location"
+            android:layout_marginTop="20px"
+            android:maxWidth="450px"
+            android:text="身份证号码 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_id_number"
+            android:layout_marginTop="20px"
+            android:maxWidth="450px"
+            android:text="有效期 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <TextView
+            android:id="@+id/tv_sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_time"
+            android:layout_marginTop="20px"
+            android:maxWidth="450px"
+            android:text="签发机关 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+        <TextView
+            android:id="@+id/tv_now_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tv_name"
+            android:layout_below="@id/tv_sign"
+            android:layout_marginTop="20px"
+            android:text="签发机关 : "
+            android:textColor="@color/color_scan"
+            android:textSize="28px"/>
+
+        <ImageView
+            android:id="@+id/iv_id_image"
+            android:layout_width="110px"
+            android:layout_height="130px"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="60px"
+            android:layout_marginTop="50px"
+            android:scaleType="fitXY"/>
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/btn_un_commit"
+        android:layout_width="270px"
+        android:layout_height="80px"
+        android:layout_marginTop="60px"
+        android:background="@mipmap/ic_un_commit_bg"
+        android:gravity="center"
+        android:text="上一步 1#"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
+        app:layout_constraintRight_toLeftOf="@id/btn_commit"
+        app:layout_constraintTop_toBottomOf="@id/framelayout"/>
+
+    <TextView
+        android:id="@+id/btn_commit"
+        android:layout_width="270px"
+        android:layout_height="80px"
+        android:layout_marginTop="60px"
+        android:background="@mipmap/ic_un_commit_bg"
+        android:gravity="center"
+        android:text="请刷身份证"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        app:layout_constraintLeft_toRightOf="@id/btn_un_commit"
+        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
+        app:layout_constraintTop_toBottomOf="@id/framelayout"/>
+
+    <LinearLayout
+        android:id="@+id/line_ip"
+        android:layout_width="800px"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/btn_commit"
+        app:layout_constraintLeft_toLeftOf="@id/framelayout"
+        app:layout_constraintTop_toTopOf="@id/framelayout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginTop="50px"
+            android:text="服务器IP地址"
+            android:textColor="@color/white"
+            android:textSize="30px"/>
+
+        <EditText
+            android:id="@+id/et_ip"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:layout_marginTop="20px"
+            android:textColor="@color/white"
+            android:textSize="28px"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginTop="50px"
+            android:text="服务器端口地址"
+            android:textColor="@color/white"
+            android:textSize="30px"/>
+
+        <EditText
+            android:id="@+id/et_port"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:layout_marginTop="20px"
+            android:textColor="@color/white"
+            android:textSize="28px"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_help"
+        android:layout_width="800px"
+        android:layout_height="600px"
+        android:paddingTop="20px"
+        android:background="@color/black"
+        android:orientation="vertical"
+        android:paddingLeft="50px"
+        android:textColor="@color/color_scan"
+        android:textSize="22px"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="@id/framelayout"
+        app:layout_constraintTop_toTopOf="@id/framelayout"/>
+
+    <TextView
+        android:id="@+id/tv_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:text="照\n片\n录\n入"
+        android:textColor="@color/color_scan"
+        android:textSize="45px"
+        app:layout_constraintBottom_toBottomOf="@id/image_half"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/image_half"/>
+
+    <ImageView
         android:id="@+id/image_1"
         android:layout_width="170px"
         android:layout_height="170px"
@@ -62,104 +338,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <ImageView
-        android:id="@+id/image_rect_bg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="90px"
-        android:layout_marginTop="30px"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <ImageView
-        android:id="@+id/image_title_bg"
-        android:layout_width="880px"
-        android:layout_height="82px"
-        android:layout_marginTop="70px"
-        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
-        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
-        app:layout_constraintTop_toTopOf="@id/image_rect_bg"/>
-
-    <TextView
-        android:id="@+id/tv_top_msg"
-        android:layout_width="880px"
-        android:layout_height="82px"
-        android:layout_marginTop="70px"
-        android:gravity="center"
-        android:textSize="36px"
-        android:textColor="@color/color_scan"
-        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
-        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
-        app:layout_constraintTop_toTopOf="@id/image_rect_bg"/>
-
-    <!--<FrameLayout-->
-    <!--android:id="@+id/framelayout"-->
-    <!--android:layout_width="800px"-->
-    <!--android:layout_height="600px"-->
-    <!--android:layout_marginTop="50px"-->
-    <!--app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"-->
-    <!--app:layout_constraintRight_toRightOf="@id/image_rect_bg"-->
-    <!--app:layout_constraintTop_toBottomOf="@id/image_title_bg">-->
-
-    <!--</FrameLayout>-->
-
-    <com.thdtek.acs.terminal.view.CameraSurfaceView
-        android:id="@+id/framelayout"
-        android:layout_width="800px"
-        android:layout_height="600px"
-        android:layout_marginTop="50px"
-        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
-        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
-        app:layout_constraintTop_toBottomOf="@id/image_title_bg">
-
-    </com.thdtek.acs.terminal.view.CameraSurfaceView>
-
-    <ImageView
-        android:id="@+id/image_camera_photo"
-        android:layout_width="800px"
-        android:layout_height="600px"
-        android:scaleType="fitXY"
-        app:layout_constraintLeft_toLeftOf="@id/framelayout"
-        app:layout_constraintTop_toTopOf="@id/framelayout"/>
-
-    <Button
-        android:id="@+id/btn_un_commit"
-        android:layout_width="270px"
-        android:layout_height="80px"
-        android:layout_marginTop="60px"
-        android:background="@mipmap/ic_un_commit_bg"
-        android:text="重拍 按2"
-        android:textColor="@color/color_scan"
-        android:textSize="30px"
-        app:layout_constraintLeft_toLeftOf="@id/image_rect_bg"
-        app:layout_constraintRight_toLeftOf="@id/btn_commit"
-        app:layout_constraintTop_toBottomOf="@id/framelayout"/>
-
-    <Button
-        android:id="@+id/btn_commit"
-        android:layout_width="270px"
-        android:layout_height="80px"
-        android:layout_marginTop="60px"
-        android:background="@mipmap/ic_un_commit_bg"
-        android:text="确定 按1"
-        android:textColor="@color/color_scan"
-        android:textSize="30px"
-        app:layout_constraintLeft_toRightOf="@id/btn_un_commit"
-        app:layout_constraintRight_toRightOf="@id/image_rect_bg"
-        app:layout_constraintTop_toBottomOf="@id/framelayout"/>
-
-    <TextView
-        android:id="@+id/tv_camera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20px"
-        android:text="照\n片\n录\n入"
-        android:textColor="@color/color_scan"
-        android:textSize="45px"
-        app:layout_constraintBottom_toBottomOf="@id/image_half"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@id/image_half"/>
-
     <TextView
         android:id="@+id/tv_pair"
         android:layout_width="wrap_content"
@@ -173,11 +351,11 @@
         app:layout_constraintTop_toTopOf="@id/image_1"/>
 
     <TextView
-        android:id="@+id/tv_message"
+        android:id="@+id/tv_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15px"
-        android:text="信息确认"
+        android:text="照片确认"
         android:textColor="@color/color_scan"
         android:textSize="21sp"
         app:layout_constraintBottom_toBottomOf="@id/image_2"
@@ -185,15 +363,56 @@
         app:layout_constraintTop_toTopOf="@id/image_2"/>
 
     <TextView
-        android:id="@+id/tv_photo"
+        android:id="@+id/tv_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15px"
-        android:text="照片录入"
+        android:text="信息确认"
         android:textColor="@color/color_scan"
         android:textSize="21sp"
         app:layout_constraintBottom_toBottomOf="@id/image_3"
         app:layout_constraintLeft_toRightOf="@id/image_3"
         app:layout_constraintTop_toTopOf="@id/image_3"/>
+
+    <TextView
+        android:id="@+id/tv_bottom_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50px"
+        android:textColor="@color/color_scan"
+        android:textSize="30px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_number_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20px"
+        android:layout_marginLeft="50px"
+        android:textColor="@color/color_scan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_id_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20px"
+        android:layout_marginLeft="20px"
+        android:textColor="@color/color_scan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/tv_number_status"/>
+
+    <TextView
+        android:id="@+id/tv_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20px"
+        android:layout_marginLeft="20px"
+        android:textColor="@color/color_scan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/tv_id_status"/>
 
 </android.support.constraint.ConstraintLayout>

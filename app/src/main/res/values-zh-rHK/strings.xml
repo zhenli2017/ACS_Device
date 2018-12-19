@@ -116,6 +116,70 @@
     <string name="sdk_init_10">程序初始化 : IFACE_NETWORK_SERVICE</string>
     <string name="sdk_init_11">程序初始化 : IFACE_SERIAL_SERVICE</string>
 
+    <string name="down_load_license">下載 license</string>
+    <string name="license_down_success">License 下載成功</string>
 
+    <string name="sdk_init_fail">SDK 初始化失敗</string>
+
+    <string name="read_person_size_fail">人數讀取失敗</string>
+    <string name="sdk_init_ing">程序正在初始化,請稍後...</string>
+    <string name="input_now">當前輸入 :</string>
+    <string name="ic_card_no_register">IC卡未登記,請登記</string>
+    <string name="hard_ware_connect_success">連接成功</string>
+    <string name="hard_ware_connect_fail">連接失敗</string>
+    <string name="hard_ware_read_success">讀取成功</string>
+    <string name="hard_ware_read_fail">讀取失敗</string>
+    <string name="camera_now_input">當前輸入 :</string>
+    <string name="camera_title_first">請將身份證放入讀卡區,並將頭像正對識別區域...</string>
+    <string name="camera_take_photo">拍照</string>
+    <string name="camera_take_photo_count_down">準備拍照 倒數 -</string>
+    <string name="camera_msg_commit">請確認圖片信息是否清晰準確...</string>
+    <string name="camera_next">下壹步 3#</string>
+    <string name="camera_previous">上壹步 1#</string>
+    <string name="camera_id_photo_error">圖片不存在,返回默認狀態</string>
+    <string name="camera_pairing_photo">正在比對圖片...</string>
+    <string name="camera_msg_second">請將身份證放入讀卡區,並將頭像正對識別區域...</string>
+    <string name="camera_input_id_card">請刷身份證</string>
+    <string name="camera_name">姓名 :</string>
+    <string name="camera_sex">性別 :</string>
+    <string name="camera_nation">民族 :</string>
+    <string name="camera_birthday">出生 :</string>
+    <string name="camera_location">住址 :</string>
+    <string name="camera_id_number">身份證號碼 :</string>
+    <string name="camera_id_time">有效日期 :</string>
+    <string name="camera_sign">簽發機關 :</string>
+    <string name="camera_now_location">當前居住地址 :</string>
+    <string name="camera_init_error">初始化發生錯誤 :</string>
+    <string name="camera_number_input">數字鍵盤 :</string>
+    <string name="camera_id_model">身份證模塊 :</string>
+    <string name="camera_msg_three">請確認圖片是否清晰準確...</string>
+    <string name="camera_msg_four">請確認身份證信息是否準確...</string>
+    <string name="camera_commmit">確定 9#</string>
+    <string name="camera_check_person">正在查詢人員是否存在...</string>
+    <string name="camera_change_person_msg">正在修改人員信息...</string>
+    <string name="camera_change_success">修改信息成功</string>
+    <string name="camera_check_success">查詢成功</string>
+    <string name="camera_error_1">發生異常</string>
+    <string name="camera_less_param">缺少參數</string>
+    <string name="camera_connect_fail">連接失敗</string>
+    <string name="camera_data_error">數據異常</string>
+    <string name="camera_not_exist">人員不存在</string>
+    <string name="camera_load_fail">圖片加載失敗</string>
+    <string name="camera_change_fail">修改失敗</string>
+    <string name="camera_lian_fail">聯發科信息查詢失敗</string>
+    <string name="server_port_error">端口設置錯誤,請重新設置</string>
+    <string name="server_divece_name_null">設備名稱不能為空</string>
+    <string name="server_connecting">正在連接,請稍後...</string>
+    <string name="server_close">關閉</string>
+    <string name="server_connect_fail">連接失敗</string>
+    <string name="server_ip_port_exist">IP 和 端口 已經存在</string>
+    <string name="server_input_null">輸入不能為空</string>
+    <string name="server_set_success">設置成功</string>
+    <string name="server_connet_success">連接成功</string>
+    <string name="ic_no_login">IC卡未登記,請登記</string>
+    <string name="camera_unkonw">未知</string>
+
+    <string name="server_reset">重置服務器IP</string>
+    <string name="server_search">查找服務器</string>
 
 </resources>

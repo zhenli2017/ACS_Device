@@ -1,16 +1,18 @@
 package com.thdtek.acs.terminal.thread;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.util.LruCache;
 
+import com.intellif.FaceRect;
+import com.thdtek.acs.terminal.bean.CacheFaceFeatureBean;
 import com.thdtek.acs.terminal.bean.FaceAttribute;
 import com.thdtek.acs.terminal.bean.FaceFeatureHexBean;
 import com.thdtek.acs.terminal.bean.IDBean;
-import com.thdtek.acs.terminal.bean.NoAliveEvent;
 import com.thdtek.acs.terminal.bean.NowPicFeatureHexBean;
 import com.thdtek.acs.terminal.bean.PairBean;
+import com.thdtek.acs.terminal.bean.PairSuccessOtherBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.dao.FaceFeatureDao;
 import com.thdtek.acs.terminal.dao.NowPicFeatureDao;
@@ -21,7 +23,10 @@ import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.BitmapUtil;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
+import com.thdtek.acs.terminal.util.camera.CameraUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +40,18 @@ import java.util.Set;
 public class FacePairThread9 extends BaseThread {
 
     private static final String TAG = FacePairThread9.class.getSimpleName();
+    private LruCache<String, byte[]> mLruCache;
+    private CacheFaceFeatureBean mCacheFaceFeatureBean;
 
     @Override
     public void init(boolean initDataBase) {
         super.init(initDataBase);
+        mLruCache = new LruCache<String, byte[]>(10 * 1024 * 1024) {
+            @Override
+            protected int sizeOf(String key, byte[] value) {
+                return value.length;
+            }
+        };
     }
 
     @Override
@@ -50,14 +63,24 @@ public class FacePairThread9 extends BaseThread {
     @Override
     public void handleData(Object faceApi, byte[] imageData, Object faceRect, String type) {
         LogUtils.d(TAG, "====== 准备开始处理数据,类型是 :" + type + " ======");
+
+
+//        long time1 = System.currentTimeMillis();
         if (Const.SDK_YUN_TIAN_LI_FEI.equals(Const.SDK)) {
-            Object tempFaceRect = getFaceRect(faceApi, imageData, true);
-            if (tempFaceRect == null) {
+            FaceRect dRectLeft = (FaceRect) faceRect;
+            LogUtils.d(TAG, "最开始的人脸位置 = " + dRectLeft.dRectLeft + " " + dRectLeft.dRectTop + " " + dRectLeft.dRectRight + " " + dRectLeft.dRectBottom);
+            faceRect = getFaceRect(faceApi, imageData, true, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
+            if (faceRect == null) {
                 LogUtils.d(TAG, "匹配前再次寻找人脸没有找到,return");
                 handleContinueOnce();
                 return;
             }
+            FaceRect faceRect1 = (FaceRect) faceRect;
+            LogUtils.d(TAG, "第二次的人脸位置 = " + faceRect1.dRectLeft + " " + faceRect1.dRectTop + " " + faceRect1.dRectRight + " " + faceRect1.dRectBottom);
         }
+//        long time2 = System.currentTimeMillis();
+//        System.out.println("================== time diff = " + (time2 - time1));
+//        long time3 = System.currentTimeMillis();
         if (Const.SDK_YUN_TIAN_LI_FEI.equals(Const.SDK)) {
             FaceAttribute faceAttribute = getFaceAttribute(faceApi, imageData, faceRect, Const.IFACEREC_QUALITY_MASK, true);
             if (faceAttribute == null) {
@@ -65,14 +88,16 @@ public class FacePairThread9 extends BaseThread {
                 return;
             }
             for (int i = 0; i < faceAttribute.faceRecAttrResult.length; i++) {
-                if (faceAttribute.faceRecAttrResult[i].fConfidence <= 0.72) {
-                    LogUtils.d(TAG, "图片质量不高 -> " + faceAttribute.faceRecAttrResult[i].fConfidence + " 当前设置质量 -> " + 0.72);
+                LogUtils.d(TAG, "图片质量 -> " + faceAttribute.faceRecAttrResult[i].fConfidence + " 当前设置质量 -> " + AppSettingUtil.getConfig().getPicQualityRate());
+                if (faceAttribute.faceRecAttrResult[i].fConfidence <= AppSettingUtil.getConfig().getPicQualityRate()) {
                     handleContinueOnce();
                     return;
                 }
             }
         }
-        //判断是否是活体
+//        long time4 = System.currentTimeMillis();
+//        System.out.println("================== time diff = " + (time4 - time3));
+//        判断是否是活体
         if (Const.SDK_YUN_TIAN_LI_FEI.equals(Const.SDK) && AppSettingUtil.getConfig().getCameraDetectType() == Const.FACE_ONE_EYE_ALIVE) {
             FaceAttribute faceAttribute = getFaceAttribute(faceApi, imageData, faceRect, Const.IFACEREC_LIVE_MASK, true);
             if (faceAttribute == null) {
@@ -80,8 +105,8 @@ public class FacePairThread9 extends BaseThread {
                 return;
             }
             for (int i = 0; i < faceAttribute.faceRecAttrResult.length; i++) {
+                LogUtils.d(TAG, "当前活体值 -> " + faceAttribute.faceRecAttrResult[i].fConfidence + " 当前设置质量 -> " + Const.test);
                 if (faceAttribute.faceRecAttrResult[i].fConfidence <= Const.test) {
-                    LogUtils.d(TAG, "非活体 -> " + faceAttribute.faceRecAttrResult[i].fConfidence + " 当前设置质量 -> " + Const.test);
                     handleNotAlive("图片检测为 : 图片非活体");
                     return;
                 }
@@ -107,19 +132,23 @@ public class FacePairThread9 extends BaseThread {
         LogUtils.d(TAG, "================================= 开始人脸比对 =================================");
         if (FacePairStatus.getInstance().getLastFacePairSuccessAuthorityId() == Const.DEFAULT_CONITUE_AUTHORITY_ID) {
             if (checkContinue()) {
+                handleContinueOnce();
                 return;
             }
             handlePairing();
             LogUtils.d(TAG, "====== 准备重新获取特征值 ======");
             if (checkContinue()) {
+                handleContinueOnce();
                 return;
             }
-            byte[] faceFeature = getFaceFeature(faceApi, imageData, faceRect, true);
+            byte[] faceFeature = getFaceFeature(faceApi, imageData, faceRect, true, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
             if (faceFeature == null) {
                 handleFail(Const.OPEN_DOOR_TYPE_FACE, "获取特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
                 return;
             }
+            mCacheFaceFeatureBean = new CacheFaceFeatureBean(System.currentTimeMillis(), faceFeature);
             if (checkContinue()) {
+                handleContinueOnce();
                 return;
             }
             //开始匹配特征值
@@ -127,8 +156,9 @@ public class FacePairThread9 extends BaseThread {
         } else {
             LogUtils.d(TAG, "====== 检测上一次匹配成功的人的id,获取特征值 ====== ");
             //上一次有成功识别的人
-            byte[] faceFeature = getFaceFeature(faceApi, imageData, faceRect, true);
+            byte[] faceFeature = getFaceFeature(faceApi, imageData, faceRect, true, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
             if (checkContinue()) {
+                handleContinueOnce();
                 return;
             }
             if (faceFeature == null) {
@@ -136,8 +166,10 @@ public class FacePairThread9 extends BaseThread {
                 handleFinish();
                 return;
             }
+            mCacheFaceFeatureBean = new CacheFaceFeatureBean(System.currentTimeMillis(), faceFeature);
             PersonBean personBean = getPairLastPeople(faceApi, faceFeature, FacePairStatus.getInstance().getLastFacePairSuccessAuthorityId());
             if (checkContinue()) {
+                handleContinueOnce();
                 return;
             }
             if (personBean == null) {
@@ -150,13 +182,14 @@ public class FacePairThread9 extends BaseThread {
                 //还是上次那个人
                 SystemClock.sleep(300);
                 if (checkContinue()) {
+                    handleContinueOnce();
                     return;
                 }
                 if (!checkPersonAccess(personBean)) {
                     LogUtils.d(TAG, "上次匹配 : Person 信息 ,权限不足,不继续认为是同一人");
                     handleFinish();
                 } else {
-                    handleSuccess(personBean, null, 0, null, Const.FACE_PAIR_SAME_PEOPLE, true);
+                    handleSuccess(personBean, new PairSuccessOtherBean(), null, 0, null, Const.FACE_PAIR_SAME_PEOPLE, true);
                 }
             }
         }
@@ -259,6 +292,7 @@ public class FacePairThread9 extends BaseThread {
 
 
         if (checkContinue()) {
+            handleContinueOnce();
             map.clear();
             return;
         }
@@ -272,6 +306,7 @@ public class FacePairThread9 extends BaseThread {
 
         PersonBean personBean = updateOfficialFaceHex(faceApi, updateFaceFeature, map, faceFeatureRateList);
         if (checkContinue()) {
+            handleContinueOnce();
             map.clear();
             return;
         }
@@ -283,6 +318,7 @@ public class FacePairThread9 extends BaseThread {
         }
         //检查权限
         if (checkContinue()) {
+            handleContinueOnce();
             map.clear();
             return;
         }
@@ -294,7 +330,25 @@ public class FacePairThread9 extends BaseThread {
 
         LogUtils.d(TAG, "最终比对值 = " + faceFeatureRateList + " \nbean = " + personBean.getName());
 
-        handleSuccess(personBean, imageData, faceFeatureRateList.get(0), getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+        if (SwitchConst.IS_OPEN_SOCKET_MODE) {
+            if (personBean.getPerson_id() >= Const.PERSON_TYPE_GUEST_DEFAULT_AUTHORITY_ID) {
+                //当前人员是访客人员
+                if ((AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_REGISTER)) {
+                    //当前人员是访客人员,已经开启了访客模式 3
+                    handleSuccess(personBean, new PairSuccessOtherBean(), imageData, faceFeatureRateList.get(0), getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+                } else if (AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_REGISTER) {
+                    handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "当前是人证核验访客模式" + AppSettingUtil.getConfig().getGuestOpenDoorType(), Const.FACE_PAIR_ERROR_CODE_PAIR_ID_CARD);
+                } else {
+
+                    handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "访客模式没有开启 或 身份证号码不对,失败 = " + AppSettingUtil.getConfig().getGuestOpenDoorType(), Const.FACE_PAIR_ERROR_CODE_NOT_GUEST_MODE);
+                }
+            } else {
+                handleSuccess(personBean, new PairSuccessOtherBean(), imageData, faceFeatureRateList.get(0), getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+            }
+        } else {
+            handleSuccess(personBean, new PairSuccessOtherBean(), imageData, faceFeatureRateList.get(0), getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+        }
+
     }
 
     private PersonBean getPairLastPeople(Object faceApi, byte[] updateFaceFeature, long lastAuthorityId) {
@@ -375,18 +429,28 @@ public class FacePairThread9 extends BaseThread {
         }
 
         //通过照的特征值
-        byte[] cameraFaceFeature = getFaceFeature(faceApi, imageData, faceRect, true);
+        byte[] cameraFaceFeature = getFaceFeature(faceApi, imageData, faceRect, true, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
         if (cameraFaceFeature == null) {
             handleFail(Const.OPEN_DOOR_TYPE_FACE_IC, "人脸+IC : 获取特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
             return;
         }
 
         float facePair = facePair(faceApi, bean, cameraFaceFeature);
-        if (facePair != 2.0f && bean.getPerson_id() < Const.PERSON_TYPE_GUEST_DEFAULT_AUTHORITY_ID && checkPersonAccess(bean)) {
-            //IC卡比对成功,并且人员的id不是访客的id
-            handleSuccess(bean, imageData, facePair, getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+        if (SwitchConst.IS_OPEN_SOCKET_MODE) {
+
+            if (facePair != 2.0f && bean.getPerson_id() < Const.PERSON_TYPE_GUEST_DEFAULT_AUTHORITY_ID && checkPersonAccess(bean)) {
+                //IC卡比对成功,并且人员的id不是访客的id
+                handleSuccess(bean, new PairSuccessOtherBean(), imageData, facePair, getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+            } else {
+                handleFail(Const.OPEN_DOOR_TYPE_FACE_IC, "人脸+IC : 没有人高于指定阈值", Const.FACE_PAIR_ERROR_CODE_NOT_LOGIN);
+            }
         } else {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_IC, "人脸+IC : 没有人高于指定阈值", Const.FACE_PAIR_ERROR_CODE_NOT_LOGIN);
+            if (facePair != 2.0f && checkPersonAccess(bean)) {
+                //IC卡比对成功,并且人员的id不是访客的id
+                handleSuccess(bean, new PairSuccessOtherBean(), imageData, facePair, getRect(faceRect), Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+            } else {
+                handleFail(Const.OPEN_DOOR_TYPE_FACE_IC, "人脸+IC : 没有人高于指定阈值", Const.FACE_PAIR_ERROR_CODE_NOT_LOGIN);
+            }
         }
     }
 
@@ -459,57 +523,88 @@ public class FacePairThread9 extends BaseThread {
 
         LogUtils.d(TAG, "======================= 开始比对身份证和人脸信息 =======================");
         //正在准备匹配
-        FacePairStatus.getInstance().pairIng();
-        byte[] faceImageDate = getFaceImageDate();
-        if (faceImageDate == null) {
-            LogUtils.e(TAG, "获取身份证图片data数据失败,return");
-            return;
-        }
-        //获取身份证特征值
-        System.out.println("=== 获取身份证特征值");
-        byte[] idFaceFeature = getIdFaceFeature(faceApi, faceImageDate);
-        if (idFaceFeature == null) {
-            LogUtils.e(TAG, "获取身份证特征值失败,return");
+        if (FaceTempData.getInstance().isHaveIdMessage()) {
+            LogUtils.d(TAG, "当前有身份证信息,显示正在匹配UI");
+            FacePairStatus.getInstance().pairIng();
+        } else {
+            LogUtils.d(TAG, "当前没有身份证信息,不显示正在匹配UI,只是计算相机图片特征值");
+            byte[] cameraFaceFeature = getCameraFaceFeature(faceApi, imageData, faceRect);
+            if (cameraFaceFeature == null) {
+                LogUtils.d(TAG, "人脸+身份证 : 相机图片,获取特征值失败");
+            } else {
+                mCacheFaceFeatureBean = new CacheFaceFeatureBean(System.currentTimeMillis(), cameraFaceFeature);
+            }
+            LogUtils.d(TAG, "开始重新捕获数据");
+            handleContinueOnce();
             return;
         }
 
-        byte[] cameraFaceFeature = getCameraFaceFeature(faceApi, imageData, faceRect);
-        if (cameraFaceFeature == null) {
-            return;
-        }
-        facePair(faceApi, cameraFaceFeature, idFaceFeature, imageData, getRect(faceRect), true);
-    }
-
-    private byte[] getFaceImageDate() {
         IDBean idMessage = FaceTempData.getInstance().getIdMessage();
         if (idMessage == null) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取身份证图片失败", Const.FACE_PAIR_ERROR_CODE_NOT_ID_IMAGE);
-            return null;
+            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : IDBean = null", Const.FACE_PAIR_ERROR_CODE_FACE_RECT);
+            return;
         }
-        Bitmap bitmap = BitmapFactory.decodeFile(idMessage.getImage());
-        if (bitmap == null) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取身份证图片失败", Const.FACE_PAIR_ERROR_CODE_NOT_ID_IMAGE);
-            return null;
+        String idNumber = idMessage.getIdNumber();
+        byte[] idFaceFeature = mLruCache.get(idNumber);
+        if (idFaceFeature == null) {
+            Bitmap bitmap = getFaceImageDate(idMessage);
+            if (bitmap == null) {
+                handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : bitmap = null", Const.FACE_PAIR_ERROR_CODE_FACE_RECT);
+                return;
+            }
+            //获取身份证特征值
+            idFaceFeature = getIdFaceFeature(faceApi, bitmap);
+            if (idFaceFeature == null) {
+                handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取身份证特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
+                return;
+            }
+            mLruCache.put(idNumber, idFaceFeature);
         }
-
-        Bitmap backBitmap = BitmapUtil.getFull640Bitmap(bitmap);
-        return BitmapUtil.bitmap2Byte(backBitmap);
-//        return Bmp2YUV.getYUV420sp(Const.CAMERA_BITMAP_WIDTH, Const.CAMERA_BITMAP_HEIGHT, backBitmap);
+        byte[] cameraFaceFeature = null;
+        if (mCacheFaceFeatureBean != null) {
+            LogUtils.d(TAG, "当前有缓存的摄像头特征值");
+            long time = mCacheFaceFeatureBean.getTime();
+            if (System.currentTimeMillis() - time >= 3000) {
+                LogUtils.d(TAG, "当前有缓存的摄像头特征值,但是时间已经超时,重新计算特征值");
+                cameraFaceFeature = getCameraFaceFeature(faceApi, imageData, faceRect);
+                if (cameraFaceFeature == null) {
+                    handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取照相机特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
+                    return;
+                } else {
+                    mCacheFaceFeatureBean = new CacheFaceFeatureBean(System.currentTimeMillis(), cameraFaceFeature);
+                }
+            } else {
+                LogUtils.d(TAG, "缓存特征值没有超时,使用");
+                cameraFaceFeature = mCacheFaceFeatureBean.getFaceFeature();
+                mCacheFaceFeatureBean.setTime(System.currentTimeMillis());
+            }
+        } else {
+            cameraFaceFeature = getCameraFaceFeature(faceApi, imageData, faceRect);
+            if (cameraFaceFeature == null) {
+                handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取照相机特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
+                return;
+            } else {
+                mCacheFaceFeatureBean = new CacheFaceFeatureBean(System.currentTimeMillis(), cameraFaceFeature);
+            }
+        }
+        facePair(faceApi, cameraFaceFeature, idFaceFeature, imageData, getRect(faceRect), idMessage, true);
     }
+
 
     /**
      * 获取身份证的人脸特征值
      */
-    private byte[] getIdFaceFeature(Object faceApi, byte[] idData) {
-        Object faceRect = getFaceRect(faceApi, idData, false);
+    private byte[] getIdFaceFeature(Object faceApi, Bitmap bitmap) {
+        byte[] idData = BitmapUtil.bitmap2Byte(bitmap);
+        Object faceRect = getFaceRect(faceApi, idData, false, bitmap.getWidth(), bitmap.getHeight());
         if (faceRect == null) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取人脸失败", Const.FACE_PAIR_ERROR_CODE_FACE_RECT);
+            LogUtils.d(TAG, "人脸+身份证 : 获取人脸失败");
             return null;
         }
-        byte[] faceFeature = getFaceFeature(faceApi, idData, faceRect, false);
+        byte[] faceFeature = getFaceFeature(faceApi, idData, faceRect, false, bitmap.getWidth(), bitmap.getHeight());
 
         if (faceFeature == null || faceFeature.length == 0) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 获取特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
+            LogUtils.d(TAG, "人脸+身份证 : 获取特征值失败");
             return null;
         }
         return faceFeature;
@@ -524,21 +619,24 @@ public class FacePairThread9 extends BaseThread {
 //            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 相机图片,获取人脸失败");
 //            return null;
 //        }
-        byte[] faceFeature = getFaceFeature(faceApi, data, faceRect, true);
+        byte[] faceFeature = getFaceFeature(faceApi, data, faceRect, true, Const.CAMERA_PREVIEW_WIDTH, Const.CAMERA_PREVIEW_HEIGHT);
         if (faceFeature == null || faceFeature.length == 0) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 相机图片,获取特征值失败", Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL);
+            LogUtils.d(TAG, "人脸+身份证 : 相机图片,获取特征值失败");
             return null;
         }
         return faceFeature;
     }
 
 
-    private boolean facePair(Object faceApi, byte[] cameraFaceFeature, byte[] idFaceFeature, byte[] image, Rect rect, boolean handleFail) {
+    private boolean facePair(Object faceApi, byte[] cameraFaceFeature, byte[] idFaceFeature, byte[] image, Rect rect, IDBean idBean, boolean handleFail) {
+
         float pairNumber = getPairNumber(faceApi, cameraFaceFeature, idFaceFeature);
+
         LogUtils.d(TAG, "人脸+身份证 : 特征值 = " + pairNumber + " 当前设定阈值 = " + AppSettingUtil.getConfig().getIdFeaturePairNumber());
         if (pairNumber >= AppSettingUtil.getConfig().getIdFeaturePairNumber() && pairNumber <= 1) {
             LogUtils.d(TAG, "人脸+身份证 : 特征值符合阈值");
-            return faceSuccess(image, rect, pairNumber, handleFail);
+
+            return faceSuccess(image, rect, pairNumber, idBean, handleFail);
         } else {
             if (handleFail) {
                 handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "人脸+身份证 : 匹配值小于阈值", Const.FACE_PAIR_ERROR_CODE_NOT_LOGIN);
@@ -547,18 +645,38 @@ public class FacePairThread9 extends BaseThread {
         }
     }
 
-    private boolean faceSuccess(byte[] image, Rect rect, float pairNumber, boolean handleFail) {
-        PersonBean personBean = PersonDao.query2IDCard(FaceTempData.getInstance().getIdMessage().getIdNumber().toLowerCase());
+    private boolean faceSuccess(byte[] image, Rect rect, float pairNumber, IDBean idBean, boolean handleFail) {
+        PersonBean personBean = PersonDao.query2IDCard(idBean.getIdNumber().toLowerCase());
         LogUtils.d(TAG, "身份证+人脸成功 = " + personBean);
+
+        if (!SwitchConst.IS_OPEN_SOCKET_MODE) {
+            if (personBean == null) {
+                handleSuccess(new PersonBean(Const.DEFAULT_AUTHORITY_ID, Const.DEFAULT_AUTHORITY_ID,
+                                idBean.getImage(),
+                                idBean.getName().trim(),
+                                idBean.getIdNumber(),
+                                AppSettingUtil.getConfig().getGuestOpenDoorNumber()),
+                        getPairSuccessOtherBean(idBean),
+                        null, pairNumber, null, Const.FACE_PAIR_NOT_SAME_PEOPLE, false);
+            } else {
+                handleSuccess(personBean, getPairSuccessOtherBean(idBean),
+                        image, pairNumber, rect, Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
+            }
+            return true;
+        }
+
         if (personBean == null) {
             //没有这个人
             if (AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_UN_REGISTER) {
                 //访客模式开启,是人脸+身份证模式,没有登记
-                LogUtils.e(TAG, "========== 身份证+人脸成功 未登记访客模式");
+                LogUtils.e(TAG, "========== 身份证+人脸成功 未登记访客模式 " + idBean);
+
                 handleSuccess(new PersonBean(Const.DEFAULT_AUTHORITY_ID, Const.DEFAULT_AUTHORITY_ID,
-                                FaceTempData.getInstance().getIdMessage().getImage(),
-                                FaceTempData.getInstance().getIdMessage().getName().trim(),
+                                idBean.getImage(),
+                                idBean.getName().trim(),
+                                idBean.getIdNumber(),
                                 AppSettingUtil.getConfig().getGuestOpenDoorNumber()),
+                        getPairSuccessOtherBean(idBean),
                         null, pairNumber, null, Const.FACE_PAIR_NOT_SAME_PEOPLE, false);
                 return true;
             }
@@ -568,10 +686,11 @@ public class FacePairThread9 extends BaseThread {
             LogUtils.d(TAG, "person = " + personBean.toString());
             if (personBean.getPerson_id() >= Const.PERSON_TYPE_GUEST_DEFAULT_AUTHORITY_ID) {
                 //登记的访客
-                if (AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_REGISTER && checkPersonAccess(personBean)) {
+                if ((AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_REGISTER ||
+                        AppSettingUtil.getConfig().getGuestOpenDoorType() == Const.OPEN_DOOR_TYPE_GUEST_ID_FACE_UN_REGISTER) && checkPersonAccess(personBean)) {
                     //判断访客登记模式是否已经开启
                     LogUtils.e(TAG, "========== 身份证+人脸成功 登记访客模式");
-                    handleSuccess(personBean,
+                    handleSuccess(personBean, getPairSuccessOtherBean(idBean),
                             image, pairNumber, rect, Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
                     return true;
                 }
@@ -579,7 +698,7 @@ public class FacePairThread9 extends BaseThread {
                 //员工
                 if (checkPersonAccess(personBean)) {
                     LogUtils.e(TAG, "========== 身份证+人脸成功 员工模式");
-                    handleSuccess(personBean,
+                    handleSuccess(personBean, getPairSuccessOtherBean(idBean),
                             image, pairNumber, rect, Const.FACE_PAIR_NOT_SAME_PEOPLE, true);
 
                     return true;
@@ -588,9 +707,25 @@ public class FacePairThread9 extends BaseThread {
         }
         LogUtils.e(TAG, "========== 身份证+人脸成功 失败,id不对或权限不足");
         if (handleFail) {
-            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "身份证+人脸成功 访客模式没有开启,失败 = " + AppSettingUtil.getConfig().getGuestOpenDoorType(), Const.FACE_PAIR_ERROR_CODE_NOT_GUEST_MODE);
+            handleFail(Const.OPEN_DOOR_TYPE_FACE_ID, "访客模式没有开启 或 身份证号码不对,失败 = " + AppSettingUtil.getConfig().getGuestOpenDoorType(), Const.FACE_PAIR_ERROR_CODE_NOT_GUEST_MODE);
         }
         return false;
+    }
+
+    private PairSuccessOtherBean getPairSuccessOtherBean(IDBean idBean) {
+
+        PairSuccessOtherBean pairSuccessOtherBean = new PairSuccessOtherBean();
+        if (idBean == null) {
+            return pairSuccessOtherBean;
+        }
+        pairSuccessOtherBean.setBirthday(idBean.getBirthday());
+        pairSuccessOtherBean.setGender(idBean.getSex());
+        pairSuccessOtherBean.setIdNumber(idBean.getIdNumber());
+        pairSuccessOtherBean.setLocation(idBean.getLocal());
+        pairSuccessOtherBean.setNation(idBean.getNation());
+        pairSuccessOtherBean.setSigningOrganization(idBean.getSigningOrganization());
+        pairSuccessOtherBean.setValidityTime(idBean.getValidityTime());
+        return pairSuccessOtherBean;
     }
 
 

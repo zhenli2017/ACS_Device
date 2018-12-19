@@ -1,8 +1,5 @@
 package com.example.lib.interfaceTest;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -24,26 +21,52 @@ public class InterfaceTest {
 
     public static void main(String[] args) {
 //        setDeviceKey();
-//        setDeviceInfo();
+        setDeviceInfo();
 //        getDeviceInfo();
-        setTime();
+//        setTime();
 //        getTime();
-        setPerson();
+//        for (int i = 0; i < 3; i++) {
+//        setPerson(20002);
+//        }
 //        getPerson();
 //        listPerson();
-//        removePerson();
+//        removePerson(20001);
 //        listRecord();
 //        removeRecord();
 //        setRecordCallback();
 //        getRecordCallback();
 //        reboot();
 //        openDoor();
-        setHeartBeat();
+//        setHeartBeat();
 //        getHeartBeat();
 //        check();
 //        photo();
 //        parseBase64Image();
-
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (int i = 0; i < 100; i++) {
+//                    setPerson(i);
+//                }
+//            }
+//        }).start();
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (int i = 100; i < 200; i++) {
+//                    setPerson(i);
+//                }
+//            }
+//        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                for (int i = 200; i < 300; i++) {
+//                    setPerson(i);
+//                }
+//            }
+//        }).start();
     }
 
 
@@ -57,8 +80,8 @@ public class InterfaceTest {
         String url = HTTP_URL + "setDeviceKey?key=abc";
         String body = null;
         try {
-            body = "oldKey=" + URLEncoder.encode("abc", "utf-8") +
-                    "&newKey=" + URLEncoder.encode("admin", "utf-8");
+            body = "newKey=" + URLEncoder.encode("123", "utf-8")
+                    + "&key=" + URLEncoder.encode("abc", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -76,22 +99,25 @@ public class InterfaceTest {
         String body = null;
         try {
             body = "cameraDetectType=" + URLEncoder.encode("0", "utf-8") +
-                    "&faceFeaturePairNumber=" + URLEncoder.encode("0.92", "utf-8") +
-                    "&faceFeaturePairSuccessOrFailWaitTime=" + URLEncoder.encode("2000", "utf-8") +
+                    "&faceFeaturePairNumber=" + URLEncoder.encode("0.6", "utf-8") +
+                    "&faceFeaturePairSuccessOrFailWaitTime=" + URLEncoder.encode("2.5", "utf-8") +
                     "&openDoorType=" + URLEncoder.encode("0", "utf-8") +
-                    "&openDoorContinueTime=" + URLEncoder.encode("2000", "utf-8") +
+                    "&openDoorContinueTime=" + URLEncoder.encode("2.1236", "utf-8") +
                     "&doorType=" + URLEncoder.encode("34", "utf-8") +
-                    "&idCardFaceFeaturePairNumber=" + URLEncoder.encode("0.8", "utf-8") +
-                    "&appWelcomeMsg=" + URLEncoder.encode("@,识别成功", "gbk") +
+                    "&idCardFaceFeaturePairNumber=" + URLEncoder.encode("0.5", "utf-8") +
+                    "&appWelcomeMsg=" + URLEncoder.encode("@,识别成功", "utf-8") +
                     "&deviceSoundSize=" + URLEncoder.encode("0", "utf-8") +
-                    "&deviceDefendTime=" + URLEncoder.encode("21:50", "utf-8") +
-                    "&deviceName=" + URLEncoder.encode("1号机", "gbk");
+                    "&deviceDefendTime=" + URLEncoder.encode("15:17", "utf-8") +
+                    "&appFailMsg=" + URLEncoder.encode("啦啦啦啦啦啦啦啦", "utf-8") +
+                    "&picQualityRate=" + URLEncoder.encode("0.6", "utf-8") +
+                    "&beginRecoDistance=" + URLEncoder.encode("0.2", "utf-8") +
+                    "&pairSuccessOpenDoor=" + URLEncoder.encode("0", "utf-8") +
+                    "&deviceName=" + URLEncoder.encode("1号机", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         String post = Request.post(url, body);
         System.out.println("setDeviceInfo = " + post);
-
     }
 
     /**
@@ -116,7 +142,8 @@ public class InterfaceTest {
         String url = HTTP_URL + "setTime?key=abc";
         String body = null;
         try {
-            body = "ts=" + URLEncoder.encode((System.currentTimeMillis()) + "", "utf-8");
+//            body = "ts=" + URLEncoder.encode(((System.currentTimeMillis() - 900000)/1000) + "", "utf-8");
+            body = "ts=" + URLEncoder.encode(((System.currentTimeMillis()) / 1000) + "", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -141,24 +168,31 @@ public class InterfaceTest {
      * URI:setPerson
      * method:POST
      */
-    public static void setPerson() {
+    public static void setPerson(int id) {
         String url = HTTP_URL + "setPerson?key=abc";
         String body = null;
+
         try {
-            body = "id=" + URLEncoder.encode("1", "utf-8") +
-                    "&name=" + URLEncoder.encode("胖虎1", "utf-8") +
-                    "&IC_NO=" + URLEncoder.encode("7267e840", "utf-8") +//40e86772
-                    "&ID_NO=" + URLEncoder.encode("990307189207026735", "utf-8") +
+            body = "id=" + URLEncoder.encode(id+"", "utf-8") +
+                    "&name=" + URLEncoder.encode("测试", "utf-8") +
+//                    "&IC_NO=" + URLEncoder.encode("714B0EEF7F1AB5F0", "utf-8") +//40e86772
+                    "&IC_NO=" + URLEncoder.encode("1351148967", "utf-8") +//40e86772
+//                    "&IC_NO=" + URLEncoder.encode("1916010592", "utf-8") +//40e86772
+//                    "&IC_NO=" + URLEncoder.encode("44090219960807249", "utf-8") +//40e86772
+                    "&ID_NO=" + URLEncoder.encode("4531313", "utf-8") +
                     "&personalizedPermissions=" + URLEncoder.encode("0+2", "utf-8") +
-                    "&passCount=" + URLEncoder.encode("10000", "utf-8") +
-                    "&startTs=" + URLEncoder.encode(111111111.0d + "", "utf-8") +
-                    "&endTs=" + URLEncoder.encode(99999999999.0d + "", "utf-8") +
-                    "&photo=" + URLEncoder.encode(Request.ImageToBase64("d://file/terminal/943.jpg"), "utf-8");
+                    "&passCount=" + URLEncoder.encode("5000", "utf-8") +
+                    "&startTs=" + URLEncoder.encode((System.currentTimeMillis() / 1000) + "", "utf-8") +
+                    "&endTs=" + URLEncoder.encode((System.currentTimeMillis() / 1000 + 100000) + "", "utf-8") +
+//                    "&startTs=" + URLEncoder.encode("-1", "utf-8") +
+//                    "&endTs=" + URLEncoder.encode("-1", "utf-8") +
+                    "&photo=" + URLEncoder.encode(Request.ImageToBase64("D://file/terminal/943.jpg"), "utf-8");
+//                    "&photo=" + URLEncoder.encode(Request.ImageToBase64("D://file/terminal/no_face/temp_1.jpg"), "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         String post = Request.post(url, body);
-        System.out.println("setPerson = " + post);
+        System.out.println("setPerson = " + post+" "+id);
     }
 
     /**
@@ -169,7 +203,7 @@ public class InterfaceTest {
      * String s1 = photo.replaceAll("\\\\n", "");
      */
     public static void getPerson() {
-        String url = HTTP_URL + "getPerson?key=abc&id=1";
+        String url = HTTP_URL + "getPerson?key=abc&id=20000";
         String get = Request.get(url);
         System.out.println("getPerson = " + get);
     }
@@ -190,11 +224,11 @@ public class InterfaceTest {
      * URI:removePerson
      * method:POST
      */
-    public static void removePerson() {
+    public static void removePerson(int id) {
         String url = HTTP_URL + "removePerson?key=abc";
         String body = null;
         try {
-            body = "id=" + URLEncoder.encode("[1,2]", "utf-8");
+            body = "id=" + URLEncoder.encode("[00000002]", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -208,7 +242,7 @@ public class InterfaceTest {
      * method:GET
      */
     public static void listRecord() {
-        String url = HTTP_URL + "listRecord?key=abc&ts=" + (System.currentTimeMillis() - 1000000) + "&count=100";
+        String url = HTTP_URL + "listRecord?key=abc&ts=" + (System.currentTimeMillis() / 1000 - 1000000) + "&count=100";
         String get = Request.get(url);
         System.out.println("listRecord = " + get);
     }
@@ -222,7 +256,7 @@ public class InterfaceTest {
         String url = HTTP_URL + "removeRecord?key=abc";
         String body = null;
         try {
-            body = "ts=" + URLEncoder.encode((System.currentTimeMillis() - 10000) + "", "utf-8");
+            body = "ts=" + URLEncoder.encode(((System.currentTimeMillis() - 1000000) / 1000) + "", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -239,7 +273,7 @@ public class InterfaceTest {
         String url = HTTP_URL + "setRecordCallback?key=abc";
         String body = null;
         try {
-            body = "url=" + URLEncoder.encode("http://192.168.137.1:8888", "utf-8");
+            body = "url=" + URLEncoder.encode("http://192.168.0.9:8888", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -290,7 +324,7 @@ public class InterfaceTest {
         String body = null;
         try {
             body = "url=" + URLEncoder.encode("http://192.168.0.9:8888", "utf-8") +
-                    "&period=" + URLEncoder.encode("5", "utf-8");
+                    "&period=" + URLEncoder.encode("10.0", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -335,7 +369,7 @@ public class InterfaceTest {
         String url = HTTP_URL + "check?key=abc";
         String body = null;
         try {
-            body = "photo=" + URLEncoder.encode(Request.ImageToBase64("d://file/terminal/temp.jpg"), "utf-8");
+            body = "photo=" + URLEncoder.encode(Request.ImageToBase64("D://file/terminal/943.jpg"), "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -352,8 +386,8 @@ public class InterfaceTest {
         String url = HTTP_URL + "photo?key=abc";
         String body = null;
         try {
-            body = "tipsBefore=" + URLEncoder.encode("大声喊,茄子", "gbk") +
-                    "&tipsAfter=" + URLEncoder.encode("拍照结束啦", "gbk") +
+            body = "tipsBefore=" + URLEncoder.encode("大声喊,茄子", "utf-8") +
+                    "&tipsAfter=" + URLEncoder.encode("拍照结束啦", "utf-8") +
                     "&count=" + URLEncoder.encode("1", "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -369,10 +403,10 @@ public class InterfaceTest {
         try {
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(
-                            new FileInputStream("d://file/terminal/server/image.txt")));
+                            new FileInputStream("./src/com/ygb/b64.txt")));
             String s = bufferedReader.readLine().replaceAll("\\\\n", "");
             System.out.println(s);
-            Request.Base64ToImage(s, "d://file/terminal/server/temp3.jpg");
+            Request.Base64ToImage(s, "./src/com/ygb/b64_3.jpg");
             bufferedReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -37,6 +37,10 @@ message Message {
         optional uint32 visitor_open_door_type = 16; //访客开门条件  0:未启用,1:人脸+身份证
         optional string visitor_card_no = 17; //访客使用的特殊卡号
         optional float id_card_face_feature_pair_number = 18; //身份证比对时的阈值，默认0.5
+        optional string fill_light_times = 19; //补光灯时间段
+        optional float begin_reco_distance = 20; //识别距离，终端框出人脸正方形的边长像素值长于此值，则进行识别
+        optional float pic_quality_rate = 21; //图片质量参数，0~1.0，质量越高，识别越不易出错
+        optional uint32 pair_success_open_door = 22; //识别成功后是否开闸,0:开闸,1:不开闸,默认0
     }
 
     //注册设备,客户端请求
@@ -95,6 +99,7 @@ message Message {
         optional string device_camera_sdk_version = 32; //设备中人脸识别sdk版本                   ,未使用
         optional string device_hardware_sdk_version = 33; //设备中硬件sdk版本(开闸,关闸等)         ,未使用
         optional uint64 device_elapsed_realtime = 34; //设备开机到现在的时间 秒
+        optional string watchdog_version = 35; //看门狗版本
     }
     //心跳,服务器返回
     message HeartBeatRsp {
@@ -167,6 +172,17 @@ message Message {
         optional string weekly = 7; //按星期设置每天的过闸时间段，为json字符串       
     }
 
+    //服务器推送,根据personId查询人员
+    message RsyncCheckPersonReq {
+        optional uint64 person_id = 1;
+    }
+    //客户端返回,根据personId查询人员
+    message RsyncCheckPersonRsp {
+        optional RsyncPersonRsp person = 1;
+        optional RsyncAuthRsp authority = 2;
+
+    }
+
     //单个权限或Person修改信息,服务器推送
     message RsyncActionReq {
         //删除单个权限信息
@@ -182,7 +198,7 @@ message Message {
             RsyncPersonRsp update_person = 2; //更新单个Person
             DeleteAuth delete_auth = 3;
             DeletePerson delete_person = 4;
-        }        
+        }
     }
 
     //单个权限或Person修改信息,客户端返回
@@ -201,6 +217,14 @@ message Message {
         optional float default_face_feature_rate = 6; //客户端本地保存的比对阈值
         optional float current_face_feature_rate = 7; //本次比对后的阈值
         optional uint64 count = 8; //客户端剩余的过闸次数
+        optional int32 gender = 9; //性别
+        optional string birthday = 10; //出生日期
+        optional string location = 11; //身份证地址
+        optional string validityTime = 12; //签发日期
+        optional string signingOrganization = 13; //签发机关
+        optional string nation = 14; //民族
+        optional string idNumber = 15; //身份证号码
+        optional string name = 16; //名称
 
     }
     //上传通行记录,服务器返回
@@ -209,25 +233,25 @@ message Message {
     }
 
     //请求流水记录
-    message FetchPassRecordReq{
+    message FetchPassRecordReq {
         optional double start_ts = 1; //此时间点之后的流水日志
         optional bool auto_delete = 2; //是否自动删除已获取的流水记录
         optional uint64 count = 3; //需要多少条
-    }   
-    
-    message SimplePassRecord{
+    }
+
+    message SimplePassRecord {
         optional uint64 person_id = 1;
         optional double pass_ts = 3; //过闸时间点，unixtime时间戳，单位为秒
         optional int32 method = 4; //过闸方式,0:人脸,1:身份证,2:工号,3:人脸+身份证,4:人脸+工号,未使用
         optional bytes now_img = 5; //过闸时照片,可能不存在
     }
-    
+
     //返回流水记录列表
-    message  FetchPassRecordRsp{
+    message FetchPassRecordRsp {
         repeated SimplePassRecord record_list = 1;
         optional bool has_more = 2; //是否还有更多流水日志
     }
-    
+
     //服务器操作客户端,服务器推送
     message DeviceCtrlReq {
         enum CtrlType {
@@ -244,20 +268,20 @@ message Message {
     }
 
     //服务器下发指令给客户端
-    message SendCmdReq{
+    message SendCmdReq {
         optional string cmd = 1;
-    }    
+    }
     message SendCmdRsp {
         optional int32 status = 1; //0:成功
         optional string error_msg = 2; //错误信息
     }
-    
+
     //升级APK
-    message UpdateAPKReq{
+    message UpdateAPKReq {
         optional string apk_url = 1; //apk的HTTP文件路径
         optional string md5 = 2; //apk文件的md5码
-        enum UpdateFlag{
-            RELOAD_NOW = 0;  //立即更新并重新拉起app
+        enum UpdateFlag {
+            RELOAD_NOW = 0; //立即更新并重新拉起app
             RELOAD_LATTER = 1; //设备重启后更新app
         }
         optional UpdateFlag flag = 3;
@@ -276,7 +300,7 @@ message Message {
         optional int32 status = 1; //0:成功
         optional string error_msg = 2; //错误信息
     }
-    
+
     oneof body {
         LoginReq login_req = 1;
         LoginRsp login_rsp = 2;
@@ -310,6 +334,8 @@ message Message {
         NotifyADUpdateRsp notify_ad_update_rsp = 32;
         SendCmdReq send_cmd_req = 33;
         SendCmdRsp send_cmd_rsp = 34;
+        RsyncCheckPersonReq rsync_check_person_req = 35;
+        RsyncCheckPersonRsp rsync_check_person_rsp = 36;
     }
 }
 

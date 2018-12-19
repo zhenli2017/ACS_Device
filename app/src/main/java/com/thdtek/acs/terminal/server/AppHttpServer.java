@@ -1,7 +1,5 @@
 package com.thdtek.acs.terminal.server;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -15,28 +13,35 @@ import com.thdtek.acs.terminal.bean.AccessRecordBean;
 import com.thdtek.acs.terminal.bean.ConfigBean;
 import com.thdtek.acs.terminal.bean.ImageSaveBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
+import com.thdtek.acs.terminal.dao.FaceFeatureDao;
+import com.thdtek.acs.terminal.dao.NowPicFeatureDao;
+import com.thdtek.acs.terminal.dao.PersonDao;
 import com.thdtek.acs.terminal.http.serverpush.PushContext;
 import com.thdtek.acs.terminal.imp.person.persondownload.PersonDownLoadImp;
 import com.thdtek.acs.terminal.thread.ThreadManager;
 import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.AppSettingUtil2;
-import com.thdtek.acs.terminal.util.BitmapUtil;
+import com.thdtek.acs.terminal.util.AppUtil;
 import com.thdtek.acs.terminal.util.CodeUtil;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.DBUtil;
+import com.thdtek.acs.terminal.util.DeviceSnUtil;
+import com.thdtek.acs.terminal.util.FileUtil;
 import com.thdtek.acs.terminal.util.HWUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.SPUtils;
-import com.thdtek.acs.terminal.util.camera.CameraUtil;
+import com.thdtek.acs.terminal.util.SoundUtil;
 import com.thdtek.acs.terminal.util.tts.TtsUtil;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -47,6 +52,9 @@ public class AppHttpServer extends NanoHTTPD {
     private static final String TAG = AppHttpServer.class.getSimpleName();
     private static final String META = "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">";
     private HeartbeatThreadForHttp mHeartbeatThread;
+    private static final double startTsMin = 0;//秒
+    private static final double endTsMax = 9999999999d;//秒
+
 
     public AppHttpServer() {
         super(8088);
@@ -60,7 +68,10 @@ public class AppHttpServer extends NanoHTTPD {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        LogUtils.i(TAG, "\nRunning! Point your browsers to http://localhost:8080/ \n");
+        LogUtils.i(TAG, "\nRunning! Point your browsers to http://localhost:8088/ \n");
+        LogUtils.i(TAG, "sn=" + DeviceSnUtil.getDeviceSn());
+        LogUtils.i(TAG, "manufacturer=" + AppUtil.getManufacturer());
+        LogUtils.i(TAG, "model=" + AppUtil.getModel());
 
         //开启心跳线程
         mHeartbeatThread = new HeartbeatThreadForHttp();
@@ -179,11 +190,11 @@ public class AppHttpServer extends NanoHTTPD {
     //=================================================================================
 
 
-    public static LinkedBlockingQueue<byte[]> mPhotoQueue = new LinkedBlockingQueue(3);
+    public static LinkedBlockingQueue<byte[]> mPhotoQueue = new LinkedBlockingQueue(1);
     public static boolean isTakingPictures = false;
 
     private Response photo(IHTTPSession session) {
-        String tipsBefore = session.getParms().get("tipsAfter");
+        String tipsBefore = session.getParms().get("tipsBefore");
         String tipsAfter = session.getParms().get("tipsAfter");
         String count = session.getParms().get("count");
 
@@ -195,11 +206,15 @@ public class AppHttpServer extends NanoHTTPD {
             tipsAfter = MyApplication.getContext().getString(R.string.photo_tips_after);
         }
 
-        int countInt = 1;
+        int countInt = 0;
         try {
             countInt = Integer.parseInt(count);
         } catch (Exception e) {
             e.printStackTrace();
+            return failure(102);
+        }
+
+        if (countInt < 1 || countInt > 3) {
             return failure(102);
         }
 
@@ -216,7 +231,8 @@ public class AppHttpServer extends NanoHTTPD {
         } else {
             isTakingPictures = true;
             mPhotoQueue.clear();
-            PersonDownLoadImp.getInstance().personDownLoadStart(MyApplication.getContext().getString(R.string.photo_tips_before), Const.HANDLER_DELAY_TIME_3000);
+            PersonDownLoadImp.getInstance().personDownLoadStart(tipsBefore, Const.HANDLER_DELAY_TIME_3000);
+            LogUtils.e(TAG, "photo=" + Thread.currentThread().getName());
             SystemClock.sleep(3000);
 
             Map<String, Object> data = new HashMap<>();
@@ -224,6 +240,7 @@ public class AppHttpServer extends NanoHTTPD {
             for (int i = 0; i < countInt; i++) {
                 try {
                     byte[] bytes = mPhotoQueue.take();
+                    SoundUtil.soundShutter(0);
                     list.add(Base64Utils.cameraDataToBase64(bytes));
                     SystemClock.sleep(1000);
                     mPhotoQueue.clear();
@@ -234,7 +251,7 @@ public class AppHttpServer extends NanoHTTPD {
             }
             data.put("photos", list);
             isTakingPictures = false;
-            PersonDownLoadImp.getInstance().personDownLoadEnd(MyApplication.getContext().getString(R.string.photo_tips_after), Const.HANDLER_DELAY_TIME_3000);
+            PersonDownLoadImp.getInstance().personDownLoadEnd(tipsAfter, Const.HANDLER_DELAY_TIME_3000);
 
             final String finalTipsAfter = tipsAfter;
             ThreadPool.getThread().execute(new Runnable() {
@@ -259,31 +276,11 @@ public class AppHttpServer extends NanoHTTPD {
             return failure(127);
         }
 
-        LogUtils.d(TAG, "imgByte == " + imgByte.length);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
-        if (bitmap == null) {
-            LogUtils.d(TAG, "bitmap == null");
-            return failure(127);
-        }
-
-        try {
-            CameraUtil.saveImage(new File(Const.DIR_IMAGE_TEMP),
-                    "server_photo_" + System.currentTimeMillis() + Const.IMAGE_TYPE_DEFAULT_JPG,
-                    bitmap,
-                    Bitmap.CompressFormat.JPEG);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        LogUtils.d(TAG, "width = " + bitmap.getWidth() + " height = " + bitmap.getHeight());
-        //图片变成640*480
-        Bitmap newBitmap = BitmapUtil.getFull640Bitmap(bitmap);
-
-
         //检测图片特征值是否可用、是否重复
         ThreadManager.getImageSaveThread().add(
                 new ImageSaveBean(
                         0,
-                        BitmapUtil.bitmap2Byte(newBitmap),
+                        imgByte,
                         new PersonBean(),
                         true,
                         true)
@@ -294,7 +291,14 @@ public class AppHttpServer extends NanoHTTPD {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        boolean isValid = imagePath.contains(Const.HTTP_CHECK_PHOTO_IS_VALID);
+        int isValid = 0;
+        if (imagePath.contains(Const.HTTP_CHECK_PHOTO_IS_VALID)) {
+            isValid = 0;
+        } else if (imagePath.contains(Const.HTTP_CHECK_PHOTO_FACE_NOTFOUND)) {
+            isValid = 3;
+        } else if (imagePath.contains(Const.HTTP_CHECK_PHOTO_FEATURE_ERROR)) {
+            isValid = 4;
+        }
         boolean isExist = imagePath.contains(Const.HTTP_CHECK_PHOTO_IS_EXIST);
 
         Map<String, Object> data = new HashMap<>();
@@ -334,7 +338,9 @@ public class AppHttpServer extends NanoHTTPD {
 
     private Response getHeartBeat() {
         String url = (String) SPUtils.get(MyApplication.getContext(), Const.URL_FOR_HTTP_HEARTBEAT, "");
-        int period = (int) SPUtils.get(MyApplication.getContext(), Const.PERIOD_FOR_HTTP_HEARTBEAT, -1);
+        long temp = (long) SPUtils.get(MyApplication.getContext(), Const.PERIOD_FOR_HTTP_HEARTBEAT, -1L);
+        double period = temp;
+        period = period / 1000;
 
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
@@ -357,15 +363,17 @@ public class AppHttpServer extends NanoHTTPD {
             return failure(122);
         }
 
-        int period2;
+        long period2 = 0;
         try {
-            period2 = Integer.parseInt(period);
+            double temp = Double.parseDouble(period);
+            double temp2 = new TimestampUtils().second_double_to_millisecond_double_45(temp);
+            period2 = (long) temp2;
         } catch (Exception e) {
             e.printStackTrace();
             return failure(102);
         }
 
-        if (period2 < 1) {
+        if (period2 < 1000) {
             return failure(121);
         }
 
@@ -507,55 +515,48 @@ public class AppHttpServer extends NanoHTTPD {
         if (TextUtils.isEmpty(ts)) {
             return failure(101);
         }
-        long ts2 = -1L;
+        double ts2 = -1;
         try {
-            ts2 = Long.parseLong(ts);
+            double temp = Double.parseDouble(ts);
+            ts2 = new TimestampUtils().second_double_to_millisecond_double_45(temp);
         } catch (Exception e) {
             e.printStackTrace();
             return failure(102);
         }
 
-        if (ts2 > System.currentTimeMillis() || ts2 < 0) {
-            return failure(102);
-        }
-
-        dao.deleteByTs(ts2);
+        dao.deleteByTs((long) ts2);
         return success();
     }
 
     private Response listRecord(IHTTPSession session) {
         Map<String, String> parms = session.getParms();
-        String count = parms.get("count");
         String ts = parms.get("ts");
-
-        if (TextUtils.isEmpty(count)) {
-            return failure(101);
-        }
+        String uploadPhoto = parms.get("uploadPhoto");
 
         if (TextUtils.isEmpty(ts)) {
             return failure(101);
         }
 
-        int count2;
+        double ts2;
         try {
-            count2 = Integer.parseInt(count);
+            double temp = Double.parseDouble(ts);
+            ts2 = new TimestampUtils().second_double_to_millisecond_double_45(temp);
         } catch (Exception e) {
             e.printStackTrace();
             return failure(102);
         }
 
-        long ts2;
+        boolean uploadPhoto2 = false;
         try {
-            ts2 = Long.parseLong(ts);
+            if (uploadPhoto != null) {
+                uploadPhoto2 = Boolean.parseBoolean(uploadPhoto);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return failure(102);
         }
 
         RecordDaoForHttp dao = new RecordDaoForHttp();
-        System.out.println("TS = " + ts2);
-        System.out.println("COUNT = " + count2);
-        List<AccessRecordBean> lst = dao.queryByTsAndCount(ts2, count2);
+        List<AccessRecordBean> lst = dao.queryByTsAndCount((long) ts2, 50);
 //        LogUtils.d(TAG, "查询流水结果lst=" + lst);
 
         if (lst == null) {
@@ -564,16 +565,26 @@ public class AppHttpServer extends NanoHTTPD {
 
         List<Map<String, Object>> lstData = new ArrayList<>();
         for (int i = 0; i < lst.size(); i++) {
+
             String fid = lst.get(i).getFid();
-            long time = lst.get(i).getTime();
+            double time = (double) (lst.get(i).getTime()) / 1000;
             int type = lst.get(i).getType();
             String name = lst.get(i).getPersonName();
+            String photo = Base64Utils.ImageToBase64ByLocal(lst.get(i).getAccessImage());
+            try {
+                photo = URLEncoder.encode(photo, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
             Map<String, Object> item = new HashMap<>();
             item.put("personID", fid);
             item.put("name", name);
             item.put("ts", time);
             item.put("passType", type);
-//            item.put("photo", photo);
+            if (uploadPhoto2) {
+                item.put("photo", photo);
+            }
 
             lstData.add(item);
         }
@@ -592,6 +603,7 @@ public class AppHttpServer extends NanoHTTPD {
             return failure(101);
         }
 
+        //自定义解析
         if (!ids.startsWith("[") || !ids.endsWith("]")) {
             return failure(102);
         }
@@ -606,8 +618,58 @@ public class AppHttpServer extends NanoHTTPD {
             idsArr = ids.split(",");
         }
 
-        PersonDaoForHttp dao = new PersonDaoForHttp();
-        dao.deleteByFid(idsArr);
+
+        //
+        PersonDaoForHttp daoForHttp = new PersonDaoForHttp();
+        PersonBeanDao dao = DBUtil.getDaoSession().getPersonBeanDao();
+        if (idsArr.length == 0) {
+            List<PersonBean> lst = daoForHttp.queryAll();
+            for (int i = 0; i < lst.size(); i++) {
+                PersonBean bean = lst.get(i);
+
+                //删除2个特征值
+                NowPicFeatureDao.delete(bean.getAuth_id());
+                FaceFeatureDao.delete(bean.getAuth_id());
+
+                //删除2个文件
+                if (!TextUtils.isEmpty(bean.getFacePic())) {
+                    FileUtil.deleteFile(bean.getFacePic());
+                }
+                if (!TextUtils.isEmpty(bean.getOldFacePic())) {
+                    FileUtil.deleteFile(bean.getOldFacePic());
+                }
+
+                //删除人脸db
+                dao.delete(bean);
+
+                //更新缓存
+                daoForHttp.upateCache(bean);
+            }
+        } else {
+            for (int i = 0; i < idsArr.length; i++) {
+                PersonBean bean = daoForHttp.queryByFid(idsArr[i]);
+                if (bean != null) {
+
+                    //删除2个特征值
+                    NowPicFeatureDao.delete(bean.getAuth_id());
+                    FaceFeatureDao.delete(bean.getAuth_id());
+
+                    //删除2个文件
+                    if (!TextUtils.isEmpty(bean.getFacePic())) {
+                        FileUtil.deleteFile(bean.getFacePic());
+                    }
+                    if (!TextUtils.isEmpty(bean.getOldFacePic())) {
+                        FileUtil.deleteFile(bean.getOldFacePic());
+                    }
+
+                    //删除人脸db
+                    dao.delete(bean);
+
+                    //更新缓存
+                    daoForHttp.upateCache(bean);
+                }
+            }
+        }
 
         return success();
     }
@@ -629,8 +691,8 @@ public class AppHttpServer extends NanoHTTPD {
             item.put("IC_NO", bean.getEmployee_card_id());
             item.put("ID_NO", bean.getID_no());
             item.put("passCount", bean.getCount());
-            item.put("startTs", bean.getStart_ts());
-            item.put("endTs", bean.getEnd_ts());
+            item.put("startTs", bean.getStart_ts() / 1000);
+            item.put("endTs", bean.getEnd_ts() / 1000);
 //            item.put("photo", Base64Utils.ImageToBase64ByLocal(bean.getFacePic()));
 
             lst2.add(item);
@@ -650,14 +712,19 @@ public class AppHttpServer extends NanoHTTPD {
             return failure(126);
         }
 
+//        LogUtils.i(TAG, "bean.getStart_ts="+bean.getStart_ts());
+        double startTs = bean.getStart_ts() == startTsMin ? -1 : bean.getStart_ts();
+        double endTs = bean.getEnd_ts() == endTsMax ? -1 : bean.getEnd_ts();
+
+
         Map<String, Object> data = new HashMap<>();
         data.put("id", bean.getFid());
         data.put("name", bean.getName());
         data.put("IC_NO", bean.getEmployee_card_id());
         data.put("ID_NO", bean.getID_no());
         data.put("passCount", bean.getCount());
-        data.put("startTs", bean.getStart_ts());
-        data.put("endTs", bean.getEnd_ts());
+        data.put("startTs", startTs);
+        data.put("endTs", endTs);
         data.put("photo", Base64Utils.ImageToBase64ByLocal(bean.getFacePic()));
         return success(data);
     }
@@ -674,8 +741,6 @@ public class AppHttpServer extends NanoHTTPD {
      * @return
      */
     private Response setPerson(IHTTPSession session) {
-
-
         Map<String, String> parms = session.getParms();
         String id = parms.get("id");
         String name = parms.get("name");
@@ -685,14 +750,21 @@ public class AppHttpServer extends NanoHTTPD {
         String passCount = parms.get("passCount");
         String startTs = parms.get("startTs");
         String endTs = parms.get("endTs");
+        String department = parms.get("department");
+        String position = parms.get("position");
+        String termOfValidity = parms.get("termOfValidity");
+        String cardStatus = parms.get("cardStatus");
+        String personNumber = parms.get("personNumber");
+        String picNumber = parms.get("picNumber");
+        String name2 = parms.get("name2");
         String personalizedPermissions = session.getParms().get("personalizedPermissions");
 
         if (TextUtils.isEmpty(id)) {
             return failure(101);
         }
         long passCountLong = 10000;
-        double startTsLong = 111111111.0d;
-        double endTsLong = 99999999999.0d;
+        double startTsDouble = -2;
+        double endTsDouble = -2;
 
         if (!TextUtils.isEmpty(passCount)) {
             try {
@@ -702,11 +774,33 @@ public class AppHttpServer extends NanoHTTPD {
                 return failure(107);
             }
         }
+        String icNoHex = "";
+        if (!TextUtils.isEmpty(IC_NO)) {
+            Pattern pattern = Pattern.compile("\\D");
+            Matcher matcher = pattern.matcher(IC_NO);
+            boolean icValid = true;
+            while (matcher.find()) {
+                icValid = false;
+            }
+            if (!icValid) {
+                return failure(129);
+            }
+            try {
+                icNoHex = Long.toHexString(Long.parseLong(IC_NO)).toLowerCase().trim();
+            } catch (Exception e) {
+                return failure(129);
+            }
+        }
 
         if (!TextUtils.isEmpty(startTs)) {
 
             try {
-                startTsLong = Double.parseDouble(startTs);
+                double temp = Double.parseDouble(startTs);
+                if (temp == -1.0) {
+                    startTsDouble = startTsMin;
+                } else {
+                    startTsDouble = new TimestampUtils().second_double_to_millisecond_double_45(temp) / 1000;
+                }
             } catch (Exception e) {
                 LogUtils.e(TAG, "109 " + e.getMessage());
                 return failure(109);
@@ -715,7 +809,12 @@ public class AppHttpServer extends NanoHTTPD {
         if (!TextUtils.isEmpty(endTs)) {
 
             try {
-                endTsLong = Double.parseDouble(endTs);
+                double temp = Double.parseDouble(endTs);
+                if (temp == -1.0) {
+                    endTsDouble = endTsMax;
+                } else {
+                    endTsDouble = new TimestampUtils().second_double_to_millisecond_double_45(temp) / 1000;
+                }
             } catch (Exception e) {
                 LogUtils.e(TAG, "111 " + e.getMessage());
                 return failure(111);
@@ -727,23 +826,31 @@ public class AppHttpServer extends NanoHTTPD {
             return failure(108);
         }
 
-        if (startTsLong < 0) {
-            LogUtils.e(TAG, "110 error ");
-            return failure(110);
+        if (startTsDouble < 0) {
+            startTsDouble = 0;
         }
 
-        if (endTsLong < 0) {
-            LogUtils.e(TAG, "112 error ");
-            return failure(112);
+        if (endTsDouble < 0) {
+            endTsDouble = 0;
         }
+
         PersonDaoForHttp daoHttp = new PersonDaoForHttp();
         PersonBean bean = daoHttp.queryByFid(id);
 
         PersonBeanDao dao = DBUtil.getDaoSession().getPersonBeanDao();
         if (bean == null) {
-            LogUtils.d(TAG, "setPerson 没有这个人");
+            LogUtils.d(TAG, "setPerson 本地没有这个人");
+
+            //查询是否超过最大人数
+            List<PersonBean> list = PersonDao.getDao().queryBuilder().list();
+            if (list != null && list.size() > Const.PERSON_MAX_COUNT) {
+                LogUtils.e(TAG, "人员已满 无法继续添加");
+                return failure(128);
+            }
+
             bean = new PersonBean();
-            long t = System.currentTimeMillis() / 1000;
+            SystemClock.sleep(10);
+            long t = System.currentTimeMillis();
             bean.setPerson_id(t);
             bean.setAuth_id(t);
             bean.setFid(id);
@@ -754,6 +861,7 @@ public class AppHttpServer extends NanoHTTPD {
 
             if (!TextUtils.isEmpty(IC_NO)) {
                 bean.setEmployee_card_id(IC_NO);
+                bean.setIcNoHex(icNoHex);
             }
 
             if (!TextUtils.isEmpty(ID_NO)) {
@@ -762,12 +870,31 @@ public class AppHttpServer extends NanoHTTPD {
             if (!TextUtils.isEmpty(personalizedPermissions)) {
                 bean.setPersonalizedPermissions(personalizedPermissions);
             }
+            if (!TextUtils.isEmpty(department)) {
+                bean.setDepartment(department);
+            }
+            if (!TextUtils.isEmpty(position)) {
+                bean.setPosition(position);
+            }
+            if (!TextUtils.isEmpty(termOfValidity)) {
+                bean.setTermOfValidity(termOfValidity);
+            }
+            if (!TextUtils.isEmpty(cardStatus)) {
+                bean.setCardStatus(cardStatus);
+            }
+            if (!TextUtils.isEmpty(personNumber)) {
+                bean.setPersonNumber(personNumber);
+            }
+            if (!TextUtils.isEmpty(picNumber)) {
+                bean.setPicNumber(picNumber);
+            }
+            if (!TextUtils.isEmpty(name2)) {
+                bean.setName_yingze(name2);
+            }
 
             bean.setCount(passCountLong);
-
-            bean.setStart_ts(startTsLong );
-            bean.setEnd_ts(endTsLong) ;
-
+            bean.setStart_ts(startTsDouble);
+            bean.setEnd_ts(endTsDouble);
             if (!TextUtils.isEmpty(photo)) {
                 byte[] b = Base64.decode(photo, Base64.DEFAULT);
                 ThreadManager.getImageSaveThread().add(
@@ -776,8 +903,8 @@ public class AppHttpServer extends NanoHTTPD {
                                 b,
                                 bean,
                                 true));
-
                 String imagePath = "图片保存失败";
+
                 try {
                     imagePath = ThreadManager.getImageSaveThread().get();
                     if (imagePath.contains(Const.PERSON_OFFICIAL_IMAGE_SAVE_SUCCESS)) {
@@ -801,6 +928,7 @@ public class AppHttpServer extends NanoHTTPD {
             }
             if (!TextUtils.isEmpty(IC_NO)) {
                 bean.setEmployee_card_id(IC_NO);
+                bean.setIcNoHex(icNoHex);
             }
             if (!TextUtils.isEmpty(ID_NO)) {
                 bean.setID_no(ID_NO);
@@ -809,13 +937,34 @@ public class AppHttpServer extends NanoHTTPD {
                 bean.setCount(passCountLong);
             }
             if (!TextUtils.isEmpty(startTs)) {
-                bean.setStart_ts(startTsLong);
+                bean.setStart_ts(startTsDouble);
             }
             if (!TextUtils.isEmpty(endTs)) {
-                bean.setEnd_ts(endTsLong);
+                bean.setEnd_ts(endTsDouble);
             }
             if (!TextUtils.isEmpty(personalizedPermissions)) {
                 bean.setPersonalizedPermissions(personalizedPermissions);
+            }
+            if (!TextUtils.isEmpty(department)) {
+                bean.setDepartment(department);
+            }
+            if (!TextUtils.isEmpty(position)) {
+                bean.setPosition(position);
+            }
+            if (!TextUtils.isEmpty(termOfValidity)) {
+                bean.setTermOfValidity(termOfValidity);
+            }
+            if (!TextUtils.isEmpty(cardStatus)) {
+                bean.setCardStatus(cardStatus);
+            }
+            if (!TextUtils.isEmpty(personNumber)) {
+                bean.setPersonNumber(personNumber);
+            }
+            if (!TextUtils.isEmpty(picNumber)) {
+                bean.setPicNumber(picNumber);
+            }
+            if (!TextUtils.isEmpty(name2)) {
+                bean.setName_yingze(name2);
             }
             if (!TextUtils.isEmpty(photo)) {
                 //保存图片================================================================start
@@ -960,6 +1109,10 @@ public class AppHttpServer extends NanoHTTPD {
         String deviceMusicSize = session.getParms().get("deviceSoundSize");
         String appWelcomeMsg = session.getParms().get("appWelcomeMsg");
         String idCardFaceFeaturePairNumber = session.getParms().get("idCardFaceFeaturePairNumber");
+        String appFailMsg = session.getParms().get("appFailMsg");
+        String picQualityRate = session.getParms().get("picQualityRate");
+        String beginRecoDistance = session.getParms().get("beginRecoDistance");
+        String pairSuccessOpenDoor = session.getParms().get("pairSuccessOpenDoor");
 
 
         if (TextUtils.isEmpty(cameraDetectType) &&
@@ -972,7 +1125,12 @@ public class AppHttpServer extends NanoHTTPD {
                 TextUtils.isEmpty(deviceDefendTime) &&
                 TextUtils.isEmpty(deviceMusicSize) &&
                 TextUtils.isEmpty(appWelcomeMsg) &&
-                TextUtils.isEmpty(idCardFaceFeaturePairNumber)
+                TextUtils.isEmpty(idCardFaceFeaturePairNumber) &&
+                TextUtils.isEmpty(picQualityRate) &&
+                TextUtils.isEmpty(beginRecoDistance) &&
+                TextUtils.isEmpty(pairSuccessOpenDoor) &&
+                TextUtils.isEmpty(appFailMsg)
+
                 ) {
             return error(101);
         }
@@ -984,6 +1142,25 @@ public class AppHttpServer extends NanoHTTPD {
         int doorTypeInt = -1;
         int deviceMusicSizeInt = -1;
         float idCardFaceFeaturePairNumberFloat = -1.0f;
+        float picQualityRateFloat = -1.0f;
+        float beginRecoDistanceFloat = -1.0f;
+        int pairSuccessOpenDoorInt = -1;
+        if (!TextUtils.isEmpty(pairSuccessOpenDoor)) {
+            try {
+                pairSuccessOpenDoorInt = Integer.parseInt(pairSuccessOpenDoor);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "setDeviceInfo = " + e.getMessage());
+                return failure(107);
+            }
+        }
+        if (!TextUtils.isEmpty(beginRecoDistance)) {
+            try {
+                beginRecoDistanceFloat = Float.parseFloat(beginRecoDistance);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "setDeviceInfo = " + e.getMessage());
+                return failure(107);
+            }
+        }
         if (!TextUtils.isEmpty(idCardFaceFeaturePairNumber)) {
             try {
                 idCardFaceFeaturePairNumberFloat = Float.parseFloat(idCardFaceFeaturePairNumber);
@@ -1010,7 +1187,11 @@ public class AppHttpServer extends NanoHTTPD {
         }
         if (!TextUtils.isEmpty(openDoorContinueTime)) {
             try {
-                openDoorContinueTimeInt = Integer.parseInt(openDoorContinueTime);
+
+                double temp1 = Double.parseDouble(openDoorContinueTime);
+                double temp2 = new TimestampUtils().second_double_to_millisecond_double_45(temp1);
+
+                openDoorContinueTimeInt = (int) temp2;
             } catch (Exception e) {
                 LogUtils.e(TAG, "setDeviceInfo = " + e.getMessage());
                 return failure(107);
@@ -1026,7 +1207,10 @@ public class AppHttpServer extends NanoHTTPD {
         }
         if (!TextUtils.isEmpty(faceFeaturePairSuccessOrFailWaitTime)) {
             try {
-                faceFeaturePairSuccessOrFailWaitTimeInt = Integer.parseInt(faceFeaturePairSuccessOrFailWaitTime);
+                double temp1 = Double.parseDouble(faceFeaturePairSuccessOrFailWaitTime);
+                double temp2 = new TimestampUtils().second_double_to_millisecond_double_45(temp1);
+
+                faceFeaturePairSuccessOrFailWaitTimeInt = (int) temp2;
             } catch (Exception e) {
                 LogUtils.e(TAG, "setDeviceInfo = " + e.getMessage());
                 return failure(107);
@@ -1048,6 +1232,14 @@ public class AppHttpServer extends NanoHTTPD {
                 return failure(107);
             }
         }
+        if (!TextUtils.isEmpty(picQualityRate)) {
+            try {
+                picQualityRateFloat = Float.parseFloat(picQualityRate);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "setDeviceInfo = " + e.getMessage());
+                return failure(107);
+            }
+        }
 
         Msg.Message.Config.Builder builder = Msg.Message.Config.newBuilder();
         if (!TextUtils.isEmpty(deviceName)) {
@@ -1059,7 +1251,7 @@ public class AppHttpServer extends NanoHTTPD {
         if (!TextUtils.isEmpty(deviceDefendTime)) {
             builder.setDeviceDefendTime(deviceDefendTime);
         }
-        if (cameraDetectTypeInt != 0) {
+        if (cameraDetectTypeInt != -1) {
             builder.setCameraDetectType(cameraDetectTypeInt);
         }
         if (faceFeaturePairNumberFloat != -1.f) {
@@ -1082,6 +1274,18 @@ public class AppHttpServer extends NanoHTTPD {
         }
         if (idCardFaceFeaturePairNumberFloat != -1.0f) {
             builder.setIdCardFaceFeaturePairNumber(idCardFaceFeaturePairNumberFloat);
+        }
+        if (!TextUtils.isEmpty(appFailMsg)) {
+            builder.setAppFailMsg(appFailMsg);
+        }
+        if (picQualityRateFloat != -1.0f) {
+            builder.setPicQualityRate(picQualityRateFloat);
+        }
+        if (beginRecoDistanceFloat != -1.0f) {
+            builder.setBeginRecoDistance(beginRecoDistanceFloat);
+        }
+        if (pairSuccessOpenDoorInt != -1) {
+            builder.setPairSuccessOpenDoor(pairSuccessOpenDoorInt);
         }
 
         Msg.Message.Config config = builder.build();
@@ -1108,6 +1312,8 @@ public class AppHttpServer extends NanoHTTPD {
         String version = "1";
         String APKVersion = AppSettingUtil2.getDeviceAppVersion();
 
+        long t1 = AppSettingUtil.getConfig().getOpenDoorContinueTime();
+        long t2 = AppSettingUtil.getConfig().getFaceFeaturePairSuccessOrFailWaitTime();
         Map<String, Object> data = new HashMap<>();
         data.put("sn", sn);
         data.put("name", name);
@@ -1117,12 +1323,16 @@ public class AppHttpServer extends NanoHTTPD {
         data.put("deviceSoundSize", AppSettingUtil.getConfig().getDeviceMusicSize());
         data.put("appWelcomeMsg", AppSettingUtil.getConfig().getAppWelcomeMsg());
         data.put("faceFeaturePairNumber", AppSettingUtil.getConfig().getFaceFeaturePairNumber());
-        data.put("openDoorContinueTime", AppSettingUtil.getConfig().getOpenDoorContinueTime());
-        data.put("faceFeaturePairSuccessOrFailWaitTime", AppSettingUtil.getConfig().getFaceFeaturePairSuccessOrFailWaitTime());
+        data.put("openDoorContinueTime", (double) t1 / 1000);
+        data.put("faceFeaturePairSuccessOrFailWaitTime", (double) t2 / 1000);
         data.put("doorType", AppSettingUtil.getConfig().getDoorType());
         data.put("openDoorType", AppSettingUtil.getConfig().getOpenDoorType());
         data.put("deviceDefendTime", AppSettingUtil.getConfig().getDeviceDefendTime());
         data.put("idCardFaceFeaturePairNumber", AppSettingUtil.getConfig().getIdFeaturePairNumber());
+        data.put("tipsPairFail", AppSettingUtil.getConfig().getAppFailMsg());
+        data.put("picQualityRate", AppSettingUtil.getConfig().getPicQualityRate());
+        data.put("beginRecoDistance", AppSettingUtil.getConfig().getBeginRecoDistance());
+        data.put("pairSuccessOpenDoor", AppSettingUtil.getConfig().getPairSuccessOpenDoor());
 
         return success(data);
     }
@@ -1152,8 +1362,8 @@ public class AppHttpServer extends NanoHTTPD {
 
     private Response setDeviceKey(IHTTPSession session) {
 
+        String oldKey = session.getParms().get("key");
         String newKey = session.getParms().get("newKey");
-        String oldKey = session.getParms().get("oldKey");
 
 
         if (TextUtils.isEmpty(newKey) || TextUtils.isEmpty(oldKey)) {
@@ -1172,8 +1382,11 @@ public class AppHttpServer extends NanoHTTPD {
     }
 
     private Response getTime() {
+        double time = (double) System.currentTimeMillis() / 1000;
+
+
         Map<String, Object> data = new HashMap<>();
-        data.put("ts", System.currentTimeMillis());
+        data.put("ts", time);
 
         RspHelper rspHelper = new RspHelper();
         rspHelper.setStatus(0);
@@ -1190,15 +1403,17 @@ public class AppHttpServer extends NanoHTTPD {
         if (TextUtils.isEmpty(ts)) {
             return error(101);//缺少参数
         }
-        long time = -1L;
+        double time = -1;
         try {
-            time = Long.parseLong(ts);
+            double temp = Double.parseDouble(ts);
+            time = new TimestampUtils().second_double_to_millisecond_double_45(temp);
+
         } catch (Exception e) {
             return error(102);//参数错误
         }
         boolean success = false;
-        if (time != -1L) {
-            success = HWUtil.setClientSystemTime(time / 1000);
+        if (time != -1) {
+            success = HWUtil.setClientSystemTime((long) (time / 1000));
         }
         if (success) {
             return resultFromOtherPlaces(0);

@@ -63,21 +63,27 @@ public class ImageSaveThread extends BaseThread {
 
     @Override
     public void handleData(Object face, ImageSaveBean bean) {
+
+        if (face == null || bean == null) {
+            handleSaveImage("= face = null || bean = null", "");
+            return;
+        }
+        mSynchronousQueue.clear();
+        PersonBean personBean = bean.getPersonBean();
+        LogUtils.d(TAG, "===========收到服务器推送的图片 =========== " + personBean.getAuth_id());
+        PersonDownLoadImp.getInstance().personDownLoadStart(MyApplication.getContext().getString(R.string.down_msg_person) + personBean.getName(), Const.HANDLER_DELAY_TIME_5000);
         if (CameraUtil.FIND_FACE_LOCK) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
-        PersonBean personBean = bean.getPersonBean();
-        PersonDownLoadImp.getInstance().personDownLoadStart(MyApplication.getContext().getString(R.string.down_msg_person) + personBean.getName(),Const.HANDLER_DELAY_TIME_5000);
         byte[] mImageByte = bean.getData();
         boolean facePic = bean.isFacePic();
-        LogUtils.d(TAG, "===========收到服务器推送的图片 =========== " + personBean.getAuth_id());
+
         if (mImageByte == null) {
-            handleSaveImage("image 数组 == null", personBean.getName());
+            handleSaveImage(Const.PERSON_OFFICIAL_IMAGE_SAVE_SUCCESS + "_不存在底图图片", personBean.getName());
             return;
         }
         Bitmap bitmap = BitmapFactory.decodeByteArray(mImageByte, 0, mImageByte.length);
@@ -86,12 +92,14 @@ public class ImageSaveThread extends BaseThread {
             return;
         }
         LogUtils.d(TAG, "width = " + bitmap.getWidth() + " height = " + bitmap.getHeight());
-        //图片变成640*480
-        Bitmap backBitmap = BitmapUtil.getFull640Bitmap(bitmap);
+        if (bitmap.getWidth() % 2 != 0 || bitmap.getHeight() % 2 != 0) {
+            //图片变成640*480
+            bitmap = BitmapUtil.getFull640Bitmap(bitmap);
+        }
 
-        String picPath = null;
+        String picPath = "";
         try {
-            picPath = CameraUtil.save2Person(backBitmap,
+            picPath = CameraUtil.save2Person(bitmap,
                     System.currentTimeMillis() + "_" + personBean.getName() + "_" + Const.IMAGE_TYPE_DEFAULT_JPG);
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,18 +114,18 @@ public class ImageSaveThread extends BaseThread {
             return;
         }
         byte[] bytes = BitmapUtil.bitmap2Byte(newBitmap);
-        Object faceRect = getFaceRect(face, bytes, false);
+        Object faceRect = getFaceRect(face, bytes, false, newBitmap.getWidth(), newBitmap.getHeight());
         if (faceRect == null) {
             FileUtil.deleteFile(picPath);
-            handleSaveImage("加载保存的图片没有人脸 " + picPath, personBean.getName());
+            handleSaveImage("加载保存的图片没有人脸_" + Const.HTTP_CHECK_PHOTO_FACE_NOTFOUND + picPath, personBean.getName());
             return;
         }
 
-        byte[] faceFeature = getFaceFeature(face, bytes, faceRect, false);
+        byte[] faceFeature = getFaceFeature(face, bytes, faceRect, false, newBitmap.getWidth(), newBitmap.getHeight());
 
         if (faceFeature == null) {
             FileUtil.deleteFile(picPath);
-            handleSaveImage("获取 特征值 失败", personBean.getName());
+            handleSaveImage("获取特征值失败/" + Const.HTTP_CHECK_PHOTO_FEATURE_ERROR, personBean.getName());
             return;
         } else {
             if (bean.isOnlyForCheck()) {
@@ -155,8 +163,6 @@ public class ImageSaveThread extends BaseThread {
                 }
             }
         }
-
-
     }
 
 
@@ -255,13 +261,21 @@ public class ImageSaveThread extends BaseThread {
     public void handleSaveImage(String msg, String name) {
         LogUtils.e(TAG, msg);
         if (msg.contains(Const.PERSON_OFFICIAL_IMAGE_SAVE_SUCCESS)) {
-            PersonDownLoadImp.getInstance().personDownLoadEnd(MyApplication.getContext().getString(R.string.msg_down_success) + name,Const.HANDLER_DELAY_TIME_3000);
+            PersonDownLoadImp.getInstance().personDownLoadEnd(MyApplication.getContext().getString(R.string.msg_down_success) + name, Const.HANDLER_DELAY_TIME_3000);
         } else {
-            PersonDownLoadImp.getInstance().personDownLoadEnd(MyApplication.getContext().getString(R.string.msg_down_fail) + name,Const.HANDLER_DELAY_TIME_3000);
-
+            PersonDownLoadImp.getInstance().personDownLoadEnd(MyApplication.getContext().getString(R.string.msg_down_fail) + name, Const.HANDLER_DELAY_TIME_3000);
         }
         if (mSynchronousQueue != null) {
             mSynchronousQueue.add(msg);
+        }
+    }
+
+    @Override
+    public void setSynchronousQueueError(String msg) {
+        super.setSynchronousQueueError(msg);
+        if (mSynchronousQueue != null) {
+            mSynchronousQueue.add(msg);
+            mSynchronousQueue.clear();
         }
     }
 }

@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -24,6 +23,7 @@ import android.widget.VideoView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hwit.HwitManager;
 import com.thdtek.acs.terminal.R;
 import com.thdtek.acs.terminal.base.BaseCameraActivity;
 import com.thdtek.acs.terminal.base.MyApplication;
@@ -39,7 +39,6 @@ import com.thdtek.acs.terminal.util.DownLoadVideo;
 import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.Md5;
 import com.thdtek.acs.terminal.util.SPUtils;
-import com.thdtek.acs.terminal.view.CircleFaceView2;
 import com.thdtek.acs.terminal.view.RectView;
 
 import java.io.File;
@@ -58,8 +57,9 @@ import static com.thdtek.acs.terminal.util.Const.DIR_VIDEO;
  * Description:
  */
 
-public class MainActivity3  extends BaseCameraActivity{
+public class MainActivity3 extends BaseCameraActivity {
 
+    private static final int REQUEST_CAMERA_PHOTO_ACTIVITY = 0;
     private FrameLayout mFrameLayout;
     private RectView mCircleFaceView2;
     private ViewPager mViewPagerOne;
@@ -95,7 +95,6 @@ public class MainActivity3  extends BaseCameraActivity{
 
     @Override
     public void init() {
-
     }
 
     @Override
@@ -112,11 +111,8 @@ public class MainActivity3  extends BaseCameraActivity{
         mTvTime = findViewById(R.id.tv_time);
         ImageView ivBg = findViewById(R.id.iv_bg);
         Glide.with(this).load(R.mipmap.ic_main_three_bg).into(ivBg);
-
         mIvLoading = findViewById(R.id.iv_loading);
         Glide.with(this).load(R.mipmap.ic_loading_main_three).into(mIvLoading);
-
-
         mTvTime.setText(String.format(Locale.getDefault(), "%tT", System.currentTimeMillis()));
         mTvTime.start();
         mTvTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
@@ -128,7 +124,13 @@ public class MainActivity3  extends BaseCameraActivity{
 
         mTvTitle = findViewById(R.id.tv_title);
         mTvTitle.setText(SPUtils.get(MyApplication.getContext(), Const.MAIN_TITLE, getResources().getString(R.string.title)) + "");
-
+        mTvTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cpuTemp = HwitManager.HwitGetCpuTemp();
+                System.out.println("cpuTemp = " + cpuTemp);
+            }
+        });
         mTvName = findViewById(R.id.tv_name);
         mTvState = findViewById(R.id.tv_state);
         mCircleImageView = findViewById(R.id.circleImageView);
@@ -158,11 +160,8 @@ public class MainActivity3  extends BaseCameraActivity{
                 return false;
             }
         });
-
         startVideo();
-
         mHandlerViewPager.sendEmptyMessageDelayed(Const.HANDLER_DOWN_LOAD_VIDEO, Const.HANDLER_DELAY_TIME_3000);
-
         mVideoReceiver = new VideoReceiver();
         IntentFilter intentFilter = new IntentFilter(Const.DOWN_LOAD_VIDEO_RECEIVER);
         LocalBroadcastManager.getInstance(this).registerReceiver(mVideoReceiver, intentFilter);
@@ -215,7 +214,14 @@ public class MainActivity3  extends BaseCameraActivity{
         if (mVideoView != null) {
             mVideoView.pause();
         }
+        closeCamera();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -226,7 +232,6 @@ public class MainActivity3  extends BaseCameraActivity{
         if (mHandlerViewPager != null) {
             mHandlerViewPager.removeCallbacksAndMessages(null);
         }
-
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mVideoReceiver);
     }
 
@@ -311,12 +316,12 @@ public class MainActivity3  extends BaseCameraActivity{
 
     @Override
     public void initCameraSurfaceView(final SurfaceView surfaceView) {
-       runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               mFrameLayout.addView(surfaceView);
-           }
-       });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mFrameLayout.addView(surfaceView);
+            }
+        });
     }
 
     @Override
@@ -327,13 +332,13 @@ public class MainActivity3  extends BaseCameraActivity{
     @Override
     public void handleDownLoadPersonStart(Message msg) {
         mTvDownPerson.setVisibility(View.VISIBLE);
-        mTvDownPerson.setText((String)msg.obj);
+        mTvDownPerson.setText((String) msg.obj);
     }
 
     @Override
     public void handleDownLoadPersonEnd(Message msg) {
         mTvDownPerson.setVisibility(View.VISIBLE);
-        mTvDownPerson.setText((String)msg.obj);
+        mTvDownPerson.setText((String) msg.obj);
     }
 
     @Override

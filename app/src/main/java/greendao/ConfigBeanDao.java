@@ -59,9 +59,13 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
         public final static Property DeviceHardwareSdkVersion = new Property(32, String.class, "deviceHardwareSdkVersion", false, "DEVICE_HARDWARE_SDK_VERSION");
         public final static Property DeviceElapsedRealtime = new Property(33, long.class, "deviceElapsedRealtime", false, "DEVICE_ELAPSED_REALTIME");
         public final static Property AppFailMsg = new Property(34, String.class, "appFailMsg", false, "APP_FAIL_MSG");
-        public final static Property IdFeaturePairNumber = new Property(35, float.class, "idFeaturePairNumber", false, "ID_FEATURE_PAIR_NUMBER");
-        public final static Property GuestOpenDoorType = new Property(36, int.class, "guestOpenDoorType", false, "GUEST_OPEN_DOOR_TYPE");
-        public final static Property GuestOpenDoorNumber = new Property(37, String.class, "guestOpenDoorNumber", false, "GUEST_OPEN_DOOR_NUMBER");
+        public final static Property FillLightTimes = new Property(35, String.class, "fillLightTimes", false, "FILL_LIGHT_TIMES");
+        public final static Property BeginRecoDistance = new Property(36, float.class, "beginRecoDistance", false, "BEGIN_RECO_DISTANCE");
+        public final static Property PicQualityRate = new Property(37, float.class, "picQualityRate", false, "PIC_QUALITY_RATE");
+        public final static Property IdFeaturePairNumber = new Property(38, float.class, "idFeaturePairNumber", false, "ID_FEATURE_PAIR_NUMBER");
+        public final static Property GuestOpenDoorType = new Property(39, int.class, "guestOpenDoorType", false, "GUEST_OPEN_DOOR_TYPE");
+        public final static Property GuestOpenDoorNumber = new Property(40, String.class, "guestOpenDoorNumber", false, "GUEST_OPEN_DOOR_NUMBER");
+        public final static Property PairSuccessOpenDoor = new Property(41, int.class, "pairSuccessOpenDoor", false, "PAIR_SUCCESS_OPEN_DOOR");
     };
 
 
@@ -112,9 +116,13 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
                 "\"DEVICE_HARDWARE_SDK_VERSION\" TEXT," + // 32: deviceHardwareSdkVersion
                 "\"DEVICE_ELAPSED_REALTIME\" INTEGER NOT NULL ," + // 33: deviceElapsedRealtime
                 "\"APP_FAIL_MSG\" TEXT," + // 34: appFailMsg
-                "\"ID_FEATURE_PAIR_NUMBER\" REAL NOT NULL ," + // 35: idFeaturePairNumber
-                "\"GUEST_OPEN_DOOR_TYPE\" INTEGER NOT NULL ," + // 36: guestOpenDoorType
-                "\"GUEST_OPEN_DOOR_NUMBER\" TEXT);"); // 37: guestOpenDoorNumber
+                "\"FILL_LIGHT_TIMES\" TEXT," + // 35: fillLightTimes
+                "\"BEGIN_RECO_DISTANCE\" REAL NOT NULL ," + // 36: beginRecoDistance
+                "\"PIC_QUALITY_RATE\" REAL NOT NULL ," + // 37: picQualityRate
+                "\"ID_FEATURE_PAIR_NUMBER\" REAL NOT NULL ," + // 38: idFeaturePairNumber
+                "\"GUEST_OPEN_DOOR_TYPE\" INTEGER NOT NULL ," + // 39: guestOpenDoorType
+                "\"GUEST_OPEN_DOOR_NUMBER\" TEXT," + // 40: guestOpenDoorNumber
+                "\"PAIR_SUCCESS_OPEN_DOOR\" INTEGER NOT NULL );"); // 41: pairSuccessOpenDoor
     }
 
     /** Drops the underlying database table. */
@@ -237,13 +245,21 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
         if (appFailMsg != null) {
             stmt.bindString(35, appFailMsg);
         }
-        stmt.bindDouble(36, entity.getIdFeaturePairNumber());
-        stmt.bindLong(37, entity.getGuestOpenDoorType());
+ 
+        String fillLightTimes = entity.getFillLightTimes();
+        if (fillLightTimes != null) {
+            stmt.bindString(36, fillLightTimes);
+        }
+        stmt.bindDouble(37, entity.getBeginRecoDistance());
+        stmt.bindDouble(38, entity.getPicQualityRate());
+        stmt.bindDouble(39, entity.getIdFeaturePairNumber());
+        stmt.bindLong(40, entity.getGuestOpenDoorType());
  
         String guestOpenDoorNumber = entity.getGuestOpenDoorNumber();
         if (guestOpenDoorNumber != null) {
-            stmt.bindString(38, guestOpenDoorNumber);
+            stmt.bindString(41, guestOpenDoorNumber);
         }
+        stmt.bindLong(42, entity.getPairSuccessOpenDoor());
     }
 
     @Override
@@ -360,13 +376,21 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
         if (appFailMsg != null) {
             stmt.bindString(35, appFailMsg);
         }
-        stmt.bindDouble(36, entity.getIdFeaturePairNumber());
-        stmt.bindLong(37, entity.getGuestOpenDoorType());
+ 
+        String fillLightTimes = entity.getFillLightTimes();
+        if (fillLightTimes != null) {
+            stmt.bindString(36, fillLightTimes);
+        }
+        stmt.bindDouble(37, entity.getBeginRecoDistance());
+        stmt.bindDouble(38, entity.getPicQualityRate());
+        stmt.bindDouble(39, entity.getIdFeaturePairNumber());
+        stmt.bindLong(40, entity.getGuestOpenDoorType());
  
         String guestOpenDoorNumber = entity.getGuestOpenDoorNumber();
         if (guestOpenDoorNumber != null) {
-            stmt.bindString(38, guestOpenDoorNumber);
+            stmt.bindString(41, guestOpenDoorNumber);
         }
+        stmt.bindLong(42, entity.getPairSuccessOpenDoor());
     }
 
     @Override
@@ -412,9 +436,13 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
             cursor.isNull(offset + 32) ? null : cursor.getString(offset + 32), // deviceHardwareSdkVersion
             cursor.getLong(offset + 33), // deviceElapsedRealtime
             cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34), // appFailMsg
-            cursor.getFloat(offset + 35), // idFeaturePairNumber
-            cursor.getInt(offset + 36), // guestOpenDoorType
-            cursor.isNull(offset + 37) ? null : cursor.getString(offset + 37) // guestOpenDoorNumber
+            cursor.isNull(offset + 35) ? null : cursor.getString(offset + 35), // fillLightTimes
+            cursor.getFloat(offset + 36), // beginRecoDistance
+            cursor.getFloat(offset + 37), // picQualityRate
+            cursor.getFloat(offset + 38), // idFeaturePairNumber
+            cursor.getInt(offset + 39), // guestOpenDoorType
+            cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40), // guestOpenDoorNumber
+            cursor.getInt(offset + 41) // pairSuccessOpenDoor
         );
         return entity;
     }
@@ -456,9 +484,13 @@ public class ConfigBeanDao extends AbstractDao<ConfigBean, Long> {
         entity.setDeviceHardwareSdkVersion(cursor.isNull(offset + 32) ? null : cursor.getString(offset + 32));
         entity.setDeviceElapsedRealtime(cursor.getLong(offset + 33));
         entity.setAppFailMsg(cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34));
-        entity.setIdFeaturePairNumber(cursor.getFloat(offset + 35));
-        entity.setGuestOpenDoorType(cursor.getInt(offset + 36));
-        entity.setGuestOpenDoorNumber(cursor.isNull(offset + 37) ? null : cursor.getString(offset + 37));
+        entity.setFillLightTimes(cursor.isNull(offset + 35) ? null : cursor.getString(offset + 35));
+        entity.setBeginRecoDistance(cursor.getFloat(offset + 36));
+        entity.setPicQualityRate(cursor.getFloat(offset + 37));
+        entity.setIdFeaturePairNumber(cursor.getFloat(offset + 38));
+        entity.setGuestOpenDoorType(cursor.getInt(offset + 39));
+        entity.setGuestOpenDoorNumber(cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40));
+        entity.setPairSuccessOpenDoor(cursor.getInt(offset + 41));
      }
     
     @Override

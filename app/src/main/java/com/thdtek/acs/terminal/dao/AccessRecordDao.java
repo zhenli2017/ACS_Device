@@ -5,13 +5,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 
 import com.thdtek.acs.terminal.bean.AccessRecordBean;
+import com.thdtek.acs.terminal.bean.PairSuccessOtherBean;
 import com.thdtek.acs.terminal.bean.PersonBean;
+import com.thdtek.acs.terminal.haogonge.UploadRecordForHaogonge;
 import com.thdtek.acs.terminal.http.upload.UploadRecord;
 import com.thdtek.acs.terminal.server.UploadRecordForHttp;
 import com.thdtek.acs.terminal.util.AppSettingUtil;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.DBUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 import com.thdtek.acs.terminal.util.camera.CameraUtil;
 
 import java.io.IOException;
@@ -20,14 +23,14 @@ import java.util.Locale;
 public class AccessRecordDao {
     private static final String TAG = AccessRecordDao.class.getSimpleName();
 
-    public static synchronized AccessRecordBean insert(PersonBean peopleBean, byte[] bytes, float rate, Rect rect, boolean cameraData) {
+    public static synchronized AccessRecordBean insert(PersonBean peopleBean, PairSuccessOtherBean pairSuccessOtherBean, byte[] bytes, float rate, Rect rect, boolean cameraData) {
         AccessRecordBean accessRecordBean = new AccessRecordBean();
-        accessRecordBean.setTime(System.currentTimeMillis());
+        accessRecordBean.setTime(pairSuccessOtherBean.getAccessTime());
         accessRecordBean.setType(AppSettingUtil.getConfig().getOpenDoorType());
         accessRecordBean.setPersonImage(peopleBean.getFacePic());
         accessRecordBean.setPersonName(peopleBean.getName());
         accessRecordBean.setCardNum(peopleBean.getEmployee_card_id());
-        accessRecordBean.setIdNum(peopleBean.getID_no());
+        accessRecordBean.setIdNum(peopleBean.getID_no() == null ? "" : peopleBean.getID_no());
         //对应http模式personId
         accessRecordBean.setFid(peopleBean.getFid());
         //人id
@@ -44,6 +47,18 @@ public class AccessRecordDao {
         accessRecordBean.setDefaultFaceFeatureNumber(AppSettingUtil.getConfig().getFaceFeaturePairNumber());
         //剩余通过次数
         accessRecordBean.setCount(peopleBean.getCount());
+        //性别
+        accessRecordBean.setGender(pairSuccessOtherBean.getGender());
+        //出生日期
+        accessRecordBean.setBirthday(pairSuccessOtherBean.getBirthday());
+        //身份证住址
+        accessRecordBean.setLocation(pairSuccessOtherBean.getLocation());
+        //签发时间
+        accessRecordBean.setValidityTime(pairSuccessOtherBean.getValidityTime());
+        //签发机关
+        accessRecordBean.setSigningOrganization(pairSuccessOtherBean.getSigningOrganization());
+        //民族
+        accessRecordBean.setNation(pairSuccessOtherBean.getNation());
         try {
             String filePath = "";
             if (bytes != null) {
@@ -59,41 +74,24 @@ public class AccessRecordDao {
         }
 
 
-//        try {
-//
-//            if (bytes != null) {
-//                System.out.println("===============1 temp");
-//                CameraUtil.save2Temp(bytes,
-//                        peopleBean.getName() + String.format(Locale.getDefault(), "_%tF-%<tH-%<tM-%<tS_", System.currentTimeMillis()) + System.currentTimeMillis() + Const.IMAGE_TYPE_DEFAULT_JPG,
-//                        Bitmap.CompressFormat.JPEG,
-//                        null);
-//            } else {
-//                System.out.println("===============2 temp");
-//                CameraUtil.save2Temp(BitmapFactory.decodeFile(peopleBean.getFacePic()),
-//                        peopleBean.getName() + String.format(Locale.getDefault(), "_%tF-%<tH-%<tM-%<tS_", System.currentTimeMillis()) + System.currentTimeMillis() + Const.IMAGE_TYPE_DEFAULT_JPG,
-//                        Bitmap.CompressFormat.JPEG,
-//                        null);
-//            }
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
         long insert = DBUtil.getDaoSession().getAccessRecordBeanDao().insert(accessRecordBean);
-        LogUtils.d(TAG, "记录保存成功 = " + insert);
+        LogUtils.d(TAG, "记录保存成功 = " + insert+" "+accessRecordBean.toString());
 
-        if (Const.IS_OPEN_SOCKET_MODE) {
+        if (SwitchConst.IS_OPEN_SOCKET_MODE) {
             UploadRecord.upload();
         }
 
-        if (Const.IS_OPEN_HTTP_MODE) {
+        if (SwitchConst.IS_OPEN_HTTP_MODE) {
             UploadRecordForHttp uploadRecordForHttp = new UploadRecordForHttp();
             uploadRecordForHttp.upload();
         }
 
+        if(SwitchConst.IS_OPEN_HAOGONGE_CLOUD){
+            UploadRecordForHaogonge.getInstance().upload();
+        }
+
         return accessRecordBean;
     }
+
 
 }

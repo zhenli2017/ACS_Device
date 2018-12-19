@@ -212,20 +212,27 @@ public class AppUtil {
         }
     }
 
-    public static ArrayList<String> getInstalledApps(Context context) {
-        ArrayList<String> apps = new ArrayList<String>();
+    public static String getWatchDogVersion(Context context) {
         List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
         for (int i = 0; i < packs.size(); i++) {
             android.content.pm.PackageInfo p = packs.get(i);
             if (p.versionName == null) {
                 continue;
             }
-            String appname = p.applicationInfo.loadLabel(context.getPackageManager())
-                    .toString();
-            apps.add(appname);
-            Log.d("tingxiangScreen", appname);
+            String appname = p.applicationInfo.loadLabel(context.getPackageManager()).toString();
+            if (appname.equals("ACSWatch")) {
+                return p.versionName;
+            }
         }
-        return apps;
+        return "";
     }
 
+
+    public static String getManufacturer(){
+        return android.os.Build.MANUFACTURER;
+    }
+
+    public static String getModel(){
+        return android.os.Build.MODEL;
+    }
 }

@@ -242,7 +242,20 @@ public class FileUtil {
             }
         }
     }
-    public static void copyFile(File src, File dest) {
 
+    public static void deleteDir(String path) {
+
+        try {
+            File dir = new File(path);
+            if (dir.exists() && dir.isDirectory()) {
+
+                File[] files = dir.listFiles();
+                for (File file : files) {
+                    file.delete();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

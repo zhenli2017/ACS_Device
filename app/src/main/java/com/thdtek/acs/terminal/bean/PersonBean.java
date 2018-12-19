@@ -43,15 +43,61 @@ public class PersonBean {
     private String fid;//http使用，是所有http操作的id
     private String personalizedPermissions;
     private String weekly;
+    //部门,英泽专用
+    private String department;
+    //职务,英泽专用
+    private String position;
+    //卡片有效期,英泽专用
+    private String termOfValidity;
+    //卡片状态,英泽专用
+    private String cardStatus;
+    //人员编号,英泽专用
+    private String personNumber;
+    //图片编号,英泽专用
+    private String picNumber;
+    //姓名2,英泽专用
+    private String name_yingze;
 
+    private String icNoHex;
 
-    public PersonBean(Long auth_id, long person_id, String facePic, String name, String employee_card_id) {
+    public PersonBean(Long auth_id, long person_id, String facePic, String name, String iD_no,String employee_card_id) {
         //必须是权限id,用于识别员工,登记访客,未登记访客,不能改成id
         this.auth_id = auth_id;
         this.person_id = person_id;
         this.facePic = facePic;
         this.name = name;
+        this.iD_no = iD_no;
         this.employee_card_id = employee_card_id;
+    }
+
+
+    public String getTermOfValidity() {
+        return this.termOfValidity;
+    }
+
+
+    public void setTermOfValidity(String termOfValidity) {
+        this.termOfValidity = termOfValidity;
+    }
+
+
+    public String getPosition() {
+        return this.position;
+    }
+
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+
+    public String getDepartment() {
+        return this.department;
+    }
+
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
 
@@ -221,14 +267,46 @@ public class PersonBean {
 
 
     public void setId(Long id) {
-        this.auth_id = id;
+        this.id = auth_id;
     }
 
 
-    @Generated(hash = 190628030)
+    public String getCardStatus() {
+        return this.cardStatus;
+    }
+
+
+    public void setCardStatus(String cardStatus) {
+        this.cardStatus = cardStatus;
+    }
+
+
+    public String getPersonNumber() {
+        return this.personNumber;
+    }
+
+
+    public void setPersonNumber(String personNumber) {
+        this.personNumber = personNumber;
+    }
+
+
+    public String getPicNumber() {
+        return this.picNumber;
+    }
+
+
+    public void setPicNumber(String picNumber) {
+        this.picNumber = picNumber;
+    }
+
+
+    @Generated(hash = 1093397218)
     public PersonBean(Long id, long person_id, double person_ts, long auth_id, double auth_ts, String facePic,
-            String oldFacePic, String name, String iD_no, String employee_card_id, double start_ts,
-            double end_ts, long count, String now_pic, String fid, String personalizedPermissions, String weekly) {
+            String oldFacePic, String name, String iD_no, String employee_card_id, double start_ts, double end_ts,
+            long count, String now_pic, String fid, String personalizedPermissions, String weekly, String department,
+            String position, String termOfValidity, String cardStatus, String personNumber, String picNumber,
+            String name_yingze, String icNoHex) {
         this.id = id;
         this.person_id = person_id;
         this.person_ts = person_ts;
@@ -246,6 +324,14 @@ public class PersonBean {
         this.fid = fid;
         this.personalizedPermissions = personalizedPermissions;
         this.weekly = weekly;
+        this.department = department;
+        this.position = position;
+        this.termOfValidity = termOfValidity;
+        this.cardStatus = cardStatus;
+        this.personNumber = personNumber;
+        this.picNumber = picNumber;
+        this.name_yingze = name_yingze;
+        this.icNoHex = icNoHex;
     }
 
 
@@ -253,5 +339,52 @@ public class PersonBean {
     public PersonBean() {
     }
 
+    @Override
+    public String toString() {
+        return "PersonBean{" +
+                "id=" + id +
+                ", person_id=" + person_id +
+                ", person_ts=" + person_ts +
+                ", auth_id=" + auth_id +
+                ", auth_ts=" + auth_ts +
+                ", facePic='" + facePic + '\'' +
+                ", oldFacePic='" + oldFacePic + '\'' +
+                ", name='" + name + '\'' +
+                ", iD_no='" + iD_no + '\'' +
+                ", employee_card_id='" + employee_card_id + '\'' +
+                ", start_ts=" + start_ts +
+                ", end_ts=" + end_ts +
+                ", count=" + count +
+                ", now_pic='" + now_pic + '\'' +
+                ", fid='" + fid + '\'' +
+                ", personalizedPermissions='" + personalizedPermissions + '\'' +
+                ", weekly='" + weekly + '\'' +
+                ", department='" + department + '\'' +
+                ", position='" + position + '\'' +
+                ", termOfValidity='" + termOfValidity + '\'' +
+                ", cardStatus='" + cardStatus + '\'' +
+                ", personNumber='" + personNumber + '\'' +
+                ", picNumber='" + picNumber + '\'' +
+                '}';
+    }
 
+
+    public String getName_yingze() {
+        return this.name_yingze;
+    }
+
+
+    public void setName_yingze(String name_yingze) {
+        this.name_yingze = name_yingze;
+    }
+
+
+    public String getIcNoHex() {
+        return this.icNoHex;
+    }
+
+
+    public void setIcNoHex(String icNoHex) {
+        this.icNoHex = icNoHex;
+    }
 }

@@ -21,20 +21,17 @@ public class IDBean {
     private String signingOrganization;
     @SerializedName("有效期")
     private String validityTime;
+    private String nowLocation;
 
     public IDBean() {
     }
 
-    public IDBean(String name, String image, String sex, String nation, String birthday, String local, String idNumber, String signingOrganization, String validityTime) {
-        this.name = name;
-        this.image = image;
-        this.sex = sex;
-        this.nation = nation;
-        this.birthday = birthday;
-        this.local = local;
-        this.idNumber = idNumber;
-        this.signingOrganization = signingOrganization;
-        this.validityTime = validityTime;
+    public String getNowLocation() {
+        return nowLocation;
+    }
+
+    public void setNowLocation(String nowLocation) {
+        this.nowLocation = nowLocation;
     }
 
     public String getName() {
@@ -107,5 +104,20 @@ public class IDBean {
 
     public void setValidityTime(String validityTime) {
         this.validityTime = validityTime;
+    }
+
+    @Override
+    public String toString() {
+        return "IDBean{" +
+                "\nname='" + name + '\'' +
+                "\n, image='" + image + '\'' +
+                "\n, sex='" + sex + '\'' +
+                "\n, nation='" + nation + '\'' +
+                "\n, birthday='" + birthday + '\'' +
+                "\n, local='" + local + '\'' +
+                "\n, idNumber='" + idNumber + '\'' +
+                "\n, signingOrganization='" + signingOrganization + '\'' +
+                "\n, validityTime='" + validityTime + '\'' +
+                '}';
     }
 }

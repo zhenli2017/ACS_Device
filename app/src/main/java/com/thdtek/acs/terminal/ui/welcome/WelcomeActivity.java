@@ -1,15 +1,12 @@
 package com.thdtek.acs.terminal.ui.welcome;
 
 import android.content.Intent;
-import android.text.TextUtils;
 
 import com.thdtek.acs.terminal.R;
 import com.thdtek.acs.terminal.base.BaseActivity;
 import com.thdtek.acs.terminal.bean.ConfigBean;
-import com.thdtek.acs.terminal.ui.cameraphoto.CameraPhotoActivity;
-import com.thdtek.acs.terminal.ui.login.LoginActivity;
+import com.thdtek.acs.terminal.haogonge.SettingForHaogongeActivity;
 import com.thdtek.acs.terminal.ui.main.MainActivity;
-import com.thdtek.acs.terminal.ui.main.MainActivity2;
 import com.thdtek.acs.terminal.ui.main.MainActivity3;
 import com.thdtek.acs.terminal.ui.server.ServerSettingActivity;
 import com.thdtek.acs.terminal.util.AppSettingUtil;
@@ -18,6 +15,7 @@ import com.thdtek.acs.terminal.util.DBUtil;
 import com.thdtek.acs.terminal.util.HWUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.SPUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 
 import greendao.ConfigBeanDao;
 
@@ -33,7 +31,7 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     public void init() {
-        if (Const.IS_OPEN_HTTP_MODE) {
+        if (SwitchConst.IS_OPEN_HTTP_MODE) {
             ConfigBean config = AppSettingUtil.getConfig(true);
             if (config.getDeviceRegisterTime() == 0) {
                 config.setDeviceRegisterTime(System.currentTimeMillis());
@@ -45,12 +43,17 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     public void initView() {
-//        startActivityForResult(new Intent(this, LoginActivity.class), 0);
 //        startActivityForResult(new Intent(this, CameraPhotoActivity.class), 0);
+        f();
+//        startActivityForResult(new Intent(this, SettingForHaogongeActivity.class), 0);
+//        startActivityForResult(new Intent(this, LoginActivity.class), 0);
+    }
+
+    private void f(){
         int widthPixels = getResources().getDisplayMetrics().widthPixels;
         LogUtils.d(TAG, "========== 屏幕宽度 = " + widthPixels);
-        if (!Const.IS_OPEN_SOCKET_MODE) {
-            startActivityForResult(new Intent(this, MainActivity.class),0);
+        if (!SwitchConst.IS_OPEN_SOCKET_MODE) {
+            startActivityForResult(new Intent(this, MainActivity.class), 0);
         } else {
             if (Const.IS_OPEN_DYNAMIC_AESKEY) {
                 if (AppSettingUtil.checkServerIpAndPortIsEmpty() && AppSettingUtil.checkDeviceKeyIsEmpty()) {
@@ -84,18 +87,15 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     public void firstResume() {
-        LogUtils.d(TAG, "======================== firstResume ========================");
     }
 
     @Override
     public void resume() {
-        LogUtils.d(TAG, "======================== resume ========================");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        LogUtils.d(TAG, "======================== onStop ========================");
     }
 
     @Override

@@ -1,22 +1,29 @@
 package com.thdtek.acs.terminal.base;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.multidex.MultiDexApplication;
 
 import com.tencent.bugly.crashreport.CrashReport;
+import com.thdtek.acs.terminal.haogonge.HaogongeThread;
 import com.thdtek.acs.terminal.server.AppHttpServer;
 import com.thdtek.acs.terminal.server.HeartbeatThreadForHttp;
 import com.thdtek.acs.terminal.server.UploadRecordThreadForHttp;
 import com.thdtek.acs.terminal.socket.core.PushMsgHelper;
 import com.thdtek.acs.terminal.socket.core.SendMsgHelper;
+import com.thdtek.acs.terminal.util.AppSettingUtil;
+import com.thdtek.acs.terminal.util.AppUtil;
 import com.thdtek.acs.terminal.util.Const;
 import com.thdtek.acs.terminal.util.DBUtil;
 import com.thdtek.acs.terminal.util.DeviceSnUtil;
 import com.thdtek.acs.terminal.util.FileUtil;
 import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.SPUtils;
-import com.thdtek.acs.terminal.yzface.YZFaceUtil;
+import com.thdtek.acs.terminal.util.SwitchConst;
+import com.thdtek.acs.terminal.yzface.YZFaceUtil2;
+import com.thdtek.acs.terminal.yzface.YZFaceUtil3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +39,8 @@ public class MyApplication extends MultiDexApplication {
     private static final String TAG = MyApplication.class.getSimpleName();
     private static Context mContext;
     private AppHttpServer httpServer;
+    private AppBroadcastReceiver mBroadcastReceiver;
+    private IntentFilter mFilter;
 
     @Override
     public void onCreate() {
@@ -44,32 +53,45 @@ public class MyApplication extends MultiDexApplication {
         LogUtils.init(Const.DIR_LOG, getLogFilterList());
         LogUtils.delLog(Const.DIR_LOG);
         Const.SDK = (String) SPUtils.get(this, Const.SDK_FACE, Const.SDK_YUN_TIAN_LI_FEI);
+        SPUtils.put(this, Const.SDK_FACE, Const.SDK);
         LogUtils.i(TAG, "========= Const.SDK ========== " + Const.SDK);
 
 
         //bugly
-        CrashReport.initCrashReport(getApplicationContext(), "8f100e8af1", false);
+        CrashReport.initCrashReport(getApplicationContext(), "8f100e8af1", true);
 
-        //初始化sn码
-        DeviceSnUtil.createDeviceSn();
 
         //数据库
         DBUtil.init(mContext, "Thdtek.db");
+        DeviceSnUtil.setDeviceSn(AppSettingUtil.getConfig().getDeviceSn());
+
+
+        LogUtils.e(TAG, "========== sn = " + DeviceSnUtil.getDeviceSn() + " app version = " + AppUtil.getAppVersionCode(MyApplication.getContext()) + " app version name = " + AppUtil.getAppVersionName(MyApplication.getContext()));
+
 
         //记录一次启动
         startRecord();
-
-        if (Const.IS_OPEN_HTTP_MODE) {
+        if (SwitchConst.IS_OPEN_YING_ZE) {
+            //打开英泽
+            YZFaceUtil3.getInstance().init();
+        }
+        //http
+        if (SwitchConst.IS_OPEN_HTTP_MODE) {
             //启用http
             httpServer = new AppHttpServer();
             httpServer.start();
-            YZFaceUtil.getInstance().init();
+
 
             //检测过闸流水上传
             UploadRecordThreadForHttp threadForHttp = new UploadRecordThreadForHttp();
             threadForHttp.start();
         }
 
+        //app 初始化完成广播
+        mBroadcastReceiver = new AppBroadcastReceiver();
+        mFilter = new IntentFilter();
+        mFilter.addAction(Const.APP_SDK_INIT_COMPLETE);
+        MyApplication.this.registerReceiver(mBroadcastReceiver, mFilter);
 
     }
 
@@ -91,7 +113,12 @@ public class MyApplication extends MultiDexApplication {
 
         }
         HeartbeatThreadForHttp.interrupted();
-        YZFaceUtil.getInstance().close();
+        try {
+            YZFaceUtil3.getInstance().close();
+            HaogongeThread.stopWork();
+        } catch (Exception e) {
+        }
+        this.unregisterReceiver(mBroadcastReceiver);
     }
 
     public void initFile() {
@@ -112,7 +139,6 @@ public class MyApplication extends MultiDexApplication {
         //服务器存储photo的临时路径
         FileUtil.createDir(Const.DIR_TEMP_SERVER_PHOTO);
         //创建license文件
-
         FileUtil.copyLicense(mContext);
     }
 
@@ -139,5 +165,21 @@ public class MyApplication extends MultiDexApplication {
         Intent intent = new Intent();
         intent.setAction("intent_restart_app");
         sendBroadcast(intent);
+    }
+
+
+    class AppBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Const.APP_SDK_INIT_COMPLETE.equals(action)) {
+                LogUtils.i(TAG, "app初始化完成");
+                if (SwitchConst.IS_OPEN_HAOGONGE_CLOUD) {
+                    LogUtils.i(TAG, "开始对接好工e云平台 ...");
+                    HaogongeThread.startWork(MyApplication.this);
+
+                }
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.thdtek.acs.terminal.util;
 
 import android.text.TextUtils;
 
+import com.thdtek.acs.terminal.bean.ConfigBean;
 import com.thdtek.facelibrary.FileUtils;
 
 import java.io.BufferedReader;

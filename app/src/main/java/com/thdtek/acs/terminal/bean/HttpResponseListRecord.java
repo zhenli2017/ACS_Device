@@ -12,9 +12,9 @@ public class HttpResponseListRecord {
 
 
     /**
-     * msg : 鎴愬姛
+     * msg : 成功
      * status : 0
-     * data : {"record":[{"passType":0,"ts":1540538568660,"personID":"00000001"},{"passType":0,"ts":1540538572894,"personID":"00000001"},{"passType":0,"ts":1540539071281,"personID":"00000001"},{"passType":0,"ts":1540539073935,"personID":"00000001"},{"passType":0,"ts":1540539076433,"personID":"00000001"},{"passType":0,"ts":1540539099230,"personID":"00000001"},{"passType":0,"ts":1540539102782,"personID":"00000001"},{"passType":0,"ts":1540539111102,"personID":"00000001"},{"passType":0,"ts":1540539112656,"personID":"00000001"},{"passType":0,"ts":1540539135267,"personID":"00000001"}]}
+     * data : {"record":[{"name":"李圳","passType":0,"ts":1.54287105593E9,"personID":"00000001"},{"name":"李圳","passType":0,"ts":1.542871060055E9,"personID":"00000001"}]}
      */
 
     private String msg;
@@ -58,35 +58,16 @@ public class HttpResponseListRecord {
 
         public static class RecordBean {
             /**
+             * name : 李圳
              * passType : 0
-             * ts : 1540538568660
+             * ts : 1.54287105593E9
              * personID : 00000001
              */
 
-            private int passType;
-            private long ts;
-            private String personID;
             private String name;
-
-            public int getPassType() {
-                return passType;
-            }
-
-            public void setPassType(int passType) {
-                this.passType = passType;
-            }
-
-            public long getTs() {
-                return ts;
-            }
-
-            public void setTs(long ts) {
-                this.ts = ts;
-            }
-
-            public String getPersonID() {
-                return personID;
-            }
+            private int passType;
+            private double ts;
+            private String personID;
 
             public String getName() {
                 return name;
@@ -96,36 +77,29 @@ public class HttpResponseListRecord {
                 this.name = name;
             }
 
-            @Override
-            public String toString() {
-                return "RecordBean{" +
-                        "passType=" + passType +
-                        ", ts=" + ts +
-                        ", personID='" + personID + '\'' +
-                        ", name='" + name + '\'' +
-                        '}';
+            public int getPassType() {
+                return passType;
+            }
+
+            public void setPassType(int passType) {
+                this.passType = passType;
+            }
+
+            public double getTs() {
+                return ts;
+            }
+
+            public void setTs(double ts) {
+                this.ts = ts;
+            }
+
+            public String getPersonID() {
+                return personID;
             }
 
             public void setPersonID(String personID) {
-
                 this.personID = personID;
             }
         }
-
-        @Override
-        public String toString() {
-            return "DataBean{" +
-                    "record=" + record +
-                    '}';
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "HttpResponseListRecord{" +
-                "msg='" + msg + '\'' +
-                ", status=" + status +
-                ", data=" + data +
-                '}';
     }
 }

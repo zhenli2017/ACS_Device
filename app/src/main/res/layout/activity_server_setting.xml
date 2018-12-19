@@ -22,39 +22,41 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dimen_15dp"
-                android:layout_height="wrap_content">
+                android:gravity="center"
+                android:orientation="horizontal">
+
                 <com.thdtek.acs.terminal.view.CustomEditText
                     android:id="@+id/et_main_title"
                     android:layout_width="wrap_content"
-                    android:layout_weight="1"
                     android:layout_height="@dimen/dimen_55dp"
                     android:layout_marginLeft="@dimen/dimen_20dp"
                     android:layout_marginRight="@dimen/dimen_10dp"
+                    android:layout_weight="1"
                     android:background="@null"
                     android:paddingLeft="@dimen/dimen_17dp"
                     android:textColor="@color/white"
                     android:textColorHint="@color/white"/>
+
                 <Button
                     android:id="@+id/btn_set_name"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/dimen_45dp"
                     android:layout_marginRight="@dimen/dimen_20dp"
                     android:background="@drawable/shape_server_btn_bg"
-                    android:text="@string/client_title_name"
                     android:paddingLeft="@dimen/dimen_10dp"
                     android:paddingRight="@dimen/dimen_10dp"
+                    android:text="@string/client_title_name"
                     android:textColor="@color/white"
                     android:textSize="@dimen/dimen_18sp"/>
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layout_socket"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
 
                 <TextView
@@ -140,6 +142,40 @@
                     android:text="@string/server_connect_test"
                     android:textColor="@color/white"
                     android:textSize="@dimen/dimen_18sp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_reset"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="@dimen/dimen_45dp"
+                        android:layout_marginLeft="@dimen/dimen_20dp"
+                        android:layout_marginRight="@dimen/dimen_20dp"
+                        android:layout_marginTop="@dimen/dimen_30dp"
+                        android:background="@drawable/shape_server_btn_bg"
+                        android:text="@string/server_reset"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/dimen_18sp"/>
+
+                    <Button
+                        android:id="@+id/btn_auto"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="@dimen/dimen_45dp"
+                        android:layout_marginLeft="@dimen/dimen_20dp"
+                        android:layout_marginRight="@dimen/dimen_20dp"
+                        android:layout_marginTop="@dimen/dimen_30dp"
+                        android:background="@drawable/shape_server_btn_bg"
+                        android:text="@string/server_search"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/dimen_18sp"/>
+
+
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

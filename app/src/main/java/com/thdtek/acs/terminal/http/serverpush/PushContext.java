@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.thdtek.acs.terminal.Msg;
 import com.thdtek.acs.terminal.http.serverpush.pushImp.PushAd;
 import com.thdtek.acs.terminal.http.serverpush.pushImp.PushApk;
+import com.thdtek.acs.terminal.http.serverpush.pushImp.PushCheckPerson;
 import com.thdtek.acs.terminal.http.serverpush.pushImp.PushCommend;
 import com.thdtek.acs.terminal.http.serverpush.pushImp.PushConfig;
 import com.thdtek.acs.terminal.http.serverpush.pushImp.PushQueryDataList;
@@ -42,6 +43,7 @@ public class PushContext {
         mHashMap.put("UPDATE_APK_REQ", PushApk.class.getName());
         mHashMap.put("NOTIFY_AD_UPDATE_REQ", PushAd.class.getName());
         mHashMap.put("SEND_CMD_REQ", PushCommend.class.getName());
+        mHashMap.put("RSYNC_CHECK_PERSON_REQ", PushCheckPerson.class.getName());
     }
 
     public Msg.Message onResponse(Msg.Message message, int seq) {

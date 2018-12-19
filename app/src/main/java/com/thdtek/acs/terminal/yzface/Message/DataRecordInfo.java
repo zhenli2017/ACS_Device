@@ -87,7 +87,7 @@ public class DataRecordInfo {
 
     public void setRecordSN(byte[] recordSN) {
         if(recordSN.length != 4){
-            throw new IllegalArgumentException("recordSN.length != 6  !!!");
+            throw new IllegalArgumentException("recordSN.length != 4  !!!");
         }
         this.recordSN = recordSN;
     }

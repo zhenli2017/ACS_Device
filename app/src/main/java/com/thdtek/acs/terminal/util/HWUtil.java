@@ -46,19 +46,65 @@ public class HWUtil {
 
         if (!DEBUG) {
             try {
-                int i = HwitManager.HwitGetIOValue(3);
-                if (i == 0) {
+                int k = HwitManager.HwitGetIOValue(3);
+                if (k == 0) {
+                    //07:00-09:00;10:00-12:00
+                    String fillLightTimes = AppSettingUtil.getConfig().getFillLightTimes();
+                    if (TextUtils.isEmpty(fillLightTimes)) {
+                        return;
+                    }
+                    String[] split = fillLightTimes.split(";");
+                    for (int i = 0; i < split.length; i++) {
 
-                    String format = String.format(Locale.getDefault(), "%tR", System.currentTimeMillis());
-                    String[] split = format.split(":");
-                    if (split.length == 2) {
-                        int time = Integer.parseInt(split[0]);
-                        if (time >= 0 && time <= 7) {
-                            LogUtils.d(TAG, "========== 打开补光灯 ==========");
+                        String subTime = split[i];
+                        if (TextUtils.isEmpty(subTime)) {
+                            continue;
+                        }
+                        String[] subSubTimeSplit = subTime.split("-");
+                        if (subSubTimeSplit.length != 2) {
+                            continue;
+                        }
+                        String startTime = subSubTimeSplit[0];
+                        String endTime = subSubTimeSplit[1];
+
+                        String[] startTimeSplit = startTime.split(":");
+                        String[] endTimeSplit = endTime.split(":");
+
+                        if (startTimeSplit.length != 2 || endTimeSplit.length != 2) {
+                            continue;
+                        }
+
+                        String format = String.format(Locale.getDefault(), "%tR", System.currentTimeMillis());
+                        String[] currentHHMM = format.split(":");
+
+                        if (Long.parseLong(currentHHMM[0]) == Long.parseLong(startTimeSplit[0]) && Long.parseLong(currentHHMM[0]) == Long.parseLong(endTimeSplit[0])) {
+                            //例子 15:00 - 15:00,需要判断分钟
+                            if (Long.parseLong(currentHHMM[1]) >= Long.parseLong(startTimeSplit[1]) && Long.parseLong(currentHHMM[1]) <= Long.parseLong(endTimeSplit[1])) {
+                                LogUtils.d(TAG, "========== 打开补光灯 ==========");
+                                HwitManager.HwitSetIOValue(3, 1);
+                                break;
+                            }
+                        } else if (Long.parseLong(currentHHMM[0]) == Long.parseLong(startTimeSplit[0]) && Long.parseLong(currentHHMM[0]) < Long.parseLong(endTimeSplit[0])) {
+                            //等于开始时间,小于结束时间
+                            LogUtils.d(TAG, "====== 等于开始时间,小于结束时间,判断分钟");
+                            if (Long.parseLong(currentHHMM[1]) >= Long.parseLong(startTimeSplit[1])) {
+                                LogUtils.d(TAG, "========== 打开补光灯 ==========");
+                                HwitManager.HwitSetIOValue(3, 1);
+                                break;
+                            }
+                        } else if (Long.parseLong(currentHHMM[0]) > Long.parseLong(startTimeSplit[0]) && Long.parseLong(currentHHMM[0]) == Long.parseLong(endTimeSplit[0])) {
+                            //大于开始时间,等于结束时间
+                            LogUtils.d(TAG, "====== 大于开始时间,等于结束时间");
+                            if (Long.parseLong(currentHHMM[1]) <= Long.parseLong(endTimeSplit[1])) {
+                                LogUtils.d(TAG, "========== 打开补光灯 ==========");
+                                HwitManager.HwitSetIOValue(3, 1);
+                                break;
+                            }
+
+                        } else if (Long.parseLong(currentHHMM[0]) > Long.parseLong(startTimeSplit[0]) && Long.parseLong(currentHHMM[0]) < Long.parseLong(endTimeSplit[0])) {
+                            LogUtils.d(TAG, "====== 大于开始时间,小于结束时间,打开补光灯");
                             HwitManager.HwitSetIOValue(3, 1);
-                        } else if (time >= 18 && time <= 24) {
-                            LogUtils.d(TAG, "========== 打开补光灯 ==========");
-                            HwitManager.HwitSetIOValue(3, 1);
+                            break;
                         }
                     }
                 }
@@ -162,7 +208,7 @@ public class HWUtil {
             LogUtils.d(TAG, "================= 打开维根26 ================== " + number);
             try {
 
-                SerialThread.getInstance().onWG26(Integer.parseInt(number));
+                SerialThread.getInstance().onWG26(number);
             } catch (Exception e) {
                 LogUtils.e(TAG, "openDoor = " + e.getMessage());
             }
@@ -174,29 +220,55 @@ public class HWUtil {
      */
     public static void openDoorWeigen34(String number) {
         if (!DEBUG) {
-            System.out.println("================= 打开维根34 ================== " + number);
+            LogUtils.d(TAG, "================= 打开维根34 ================== " + number);
             try {
-                SerialThread.getInstance().onWG34(Integer.parseInt(number));
+                SerialThread.getInstance().onWG34(number);
             } catch (Exception e) {
                 LogUtils.e(TAG, "openDoorWeigen = " + e.getMessage());
             }
         }
     }
 
+    /**
+     * 打开维根26
+     */
+    public static void openDoorWeigen66(String number) {
+        if (!DEBUG) {
+            LogUtils.d(TAG, "================= 打开维根66 ================== " + number);
+            try {
+                SerialThread.getInstance().onWG66(number);
+            } catch (Exception e) {
+                LogUtils.e(TAG, "openDoor = " + e.getMessage());
+            }
+        }
+    }
+
     public static void openDoor(final String number) {
+        if (AppSettingUtil.getConfig().getPairSuccessOpenDoor() == 1 ) {
+            LogUtils.d(TAG, "====== openDoor 全部不开门 =====");
+            return;
+        }
         ThreadPool.getThread().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    HWUtil.openDoorRelay();
-                    if (!TextUtils.equals(Const.ERROR_EMPLOYEE_CARD_NUMBER, number)) {
-                        if (AppSettingUtil.getConfig().getDoorType() == Const.WG_34) {
-                            openDoorWeigen34(WGUtil.parseWG34(number) + "");
-                        } else {
-                            openDoorWeigen26(WGUtil.parseWG26(number) + "");
-                        }
-                    } else {
-                        LogUtils.d(TAG, "卡号不正确 = " + number);
+                    int doorType = AppSettingUtil.getConfig().getDoorType();
+                    if (doorType == Const.WG_0
+                            || doorType == Const.WG_26_0
+                            || doorType == Const.WG_34_0
+                            || doorType == Const.WG_66_0) {
+                        HWUtil.openDoorRelay();
+                    }
+
+                    if (doorType == Const.WG_34
+                            || doorType == Const.WG_34_0) {
+                        openDoorWeigen34(number);
+                    } else if (doorType == Const.WG_26
+                            || doorType == Const.WG_26_0) {
+                        openDoorWeigen26(number);
+                    } else if (doorType == Const.WG_66 ||
+                            doorType == Const.WG_66_0) {
+                        openDoorWeigen66(number);
                     }
                 } catch (Exception e) {
                     LogUtils.e(TAG, "openDoor = " + e.getMessage());
@@ -206,6 +278,10 @@ public class HWUtil {
     }
 
     public static void closeDoor() {
+        if (AppSettingUtil.getConfig().getPairSuccessOpenDoor() == 1) {
+            LogUtils.d(TAG, "====== closeDoor 全部不关门 =====");
+            return;
+        }
         HWUtil.closeDoorRelay();
     }
 
@@ -340,7 +416,7 @@ public class HWUtil {
         return "";
     }
 
-    public static String getEthernetMax() {
+    public static String getEthernetMac() {
         if (!DEBUG) {
             return HwitManager.HwitGetEthernetMac();
         }
@@ -407,13 +483,12 @@ public class HWUtil {
         if (!DEBUG) {
             LogUtils.d(TAG, "================= 判断是否打开或关闭风扇 ==================");
             try {
-
                 int cpuTemp = HWUtil.getCpuTemp();
+                LogUtils.d(TAG, "CPU温度 = " + cpuTemp + " open_fan = " + FAN_OPEN);
                 if (cpuTemp >= 68 || (FAN_OPEN && cpuTemp >= 62)) {
-                    //风扇已经打开,当前温度大于62度
+                    //风扇已经打开,当前温度大于68度
                     if (!FAN_OPEN) {
                         HWUtil.openFan();
-                        LogUtils.d(TAG, "打开风扇 = " + cpuTemp + " open_fan = " + FAN_OPEN);
                     }
                 } else {
                     if (FAN_OPEN) {
@@ -421,8 +496,6 @@ public class HWUtil {
                         LogUtils.d(TAG, "关闭风扇 = " + cpuTemp + " open_fan = " + FAN_OPEN);
                     }
                 }
-
-                HwitManager.HwitSetIOValue(4, 0);
             } catch (Exception e) {
                 LogUtils.e(TAG, "closeFan = " + e.getMessage());
             }
@@ -444,8 +517,8 @@ public class HWUtil {
 
     public static void openFan() {
         if (!DEBUG) {
-            LogUtils.d(TAG, "================= 打开风扇 ==================");
             try {
+                LogUtils.d(TAG, "================= 打开风扇 ==================");
                 FAN_OPEN = true;
                 HwitManager.HwitSetIOValue(4, 1);
             } catch (Exception e) {
@@ -454,7 +527,7 @@ public class HWUtil {
         }
     }
 
-    public static void installApk(Context context, String path,String pk,String ac) {
+    public static void installApk(Context context, String path, String pk, String ac) {
         if (!DEBUG) {
             LogUtils.d(TAG, "================= 开始升级apk ================== path = " + path);
             try {
@@ -481,12 +554,10 @@ public class HWUtil {
 
     public static int getCpuTemp() {
         if (!DEBUG) {
-            LogUtils.d(TAG, "================= 获取cpu温度 ================== ");
             try {
-//                int cpuTemp = HwitManager.HwitGetCpuTemp();
-//
-//                return cpuTemp;
-
+                int cpuTemp = HwitManager.HwitGetCpuTemp();
+                LogUtils.d(TAG, "================= 获取cpu温度 ================== " + cpuTemp);
+                return cpuTemp;
 
             } catch (Exception e) {
                 LogUtils.e(TAG, "getCpuTemp = " + e.getMessage());

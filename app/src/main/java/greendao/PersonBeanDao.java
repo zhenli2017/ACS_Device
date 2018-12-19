@@ -41,6 +41,14 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
         public final static Property Fid = new Property(14, String.class, "fid", false, "FID");
         public final static Property PersonalizedPermissions = new Property(15, String.class, "personalizedPermissions", false, "PERSONALIZED_PERMISSIONS");
         public final static Property Weekly = new Property(16, String.class, "weekly", false, "WEEKLY");
+        public final static Property Department = new Property(17, String.class, "department", false, "DEPARTMENT");
+        public final static Property Position = new Property(18, String.class, "position", false, "POSITION");
+        public final static Property TermOfValidity = new Property(19, String.class, "termOfValidity", false, "TERM_OF_VALIDITY");
+        public final static Property CardStatus = new Property(20, String.class, "cardStatus", false, "CARD_STATUS");
+        public final static Property PersonNumber = new Property(21, String.class, "personNumber", false, "PERSON_NUMBER");
+        public final static Property PicNumber = new Property(22, String.class, "picNumber", false, "PIC_NUMBER");
+        public final static Property Name_yingze = new Property(23, String.class, "name_yingze", false, "NAME_YINGZE");
+        public final static Property IcNoHex = new Property(24, String.class, "icNoHex", false, "IC_NO_HEX");
     };
 
 
@@ -72,7 +80,15 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
                 "\"NOW_PIC\" TEXT," + // 13: now_pic
                 "\"FID\" TEXT UNIQUE ," + // 14: fid
                 "\"PERSONALIZED_PERMISSIONS\" TEXT," + // 15: personalizedPermissions
-                "\"WEEKLY\" TEXT);"); // 16: weekly
+                "\"WEEKLY\" TEXT," + // 16: weekly
+                "\"DEPARTMENT\" TEXT," + // 17: department
+                "\"POSITION\" TEXT," + // 18: position
+                "\"TERM_OF_VALIDITY\" TEXT," + // 19: termOfValidity
+                "\"CARD_STATUS\" TEXT," + // 20: cardStatus
+                "\"PERSON_NUMBER\" TEXT," + // 21: personNumber
+                "\"PIC_NUMBER\" TEXT," + // 22: picNumber
+                "\"NAME_YINGZE\" TEXT," + // 23: name_yingze
+                "\"IC_NO_HEX\" TEXT);"); // 24: icNoHex
     }
 
     /** Drops the underlying database table. */
@@ -141,6 +157,46 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
         if (weekly != null) {
             stmt.bindString(17, weekly);
         }
+ 
+        String department = entity.getDepartment();
+        if (department != null) {
+            stmt.bindString(18, department);
+        }
+ 
+        String position = entity.getPosition();
+        if (position != null) {
+            stmt.bindString(19, position);
+        }
+ 
+        String termOfValidity = entity.getTermOfValidity();
+        if (termOfValidity != null) {
+            stmt.bindString(20, termOfValidity);
+        }
+ 
+        String cardStatus = entity.getCardStatus();
+        if (cardStatus != null) {
+            stmt.bindString(21, cardStatus);
+        }
+ 
+        String personNumber = entity.getPersonNumber();
+        if (personNumber != null) {
+            stmt.bindString(22, personNumber);
+        }
+ 
+        String picNumber = entity.getPicNumber();
+        if (picNumber != null) {
+            stmt.bindString(23, picNumber);
+        }
+ 
+        String name_yingze = entity.getName_yingze();
+        if (name_yingze != null) {
+            stmt.bindString(24, name_yingze);
+        }
+ 
+        String icNoHex = entity.getIcNoHex();
+        if (icNoHex != null) {
+            stmt.bindString(25, icNoHex);
+        }
     }
 
     @Override
@@ -203,6 +259,46 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
         if (weekly != null) {
             stmt.bindString(17, weekly);
         }
+ 
+        String department = entity.getDepartment();
+        if (department != null) {
+            stmt.bindString(18, department);
+        }
+ 
+        String position = entity.getPosition();
+        if (position != null) {
+            stmt.bindString(19, position);
+        }
+ 
+        String termOfValidity = entity.getTermOfValidity();
+        if (termOfValidity != null) {
+            stmt.bindString(20, termOfValidity);
+        }
+ 
+        String cardStatus = entity.getCardStatus();
+        if (cardStatus != null) {
+            stmt.bindString(21, cardStatus);
+        }
+ 
+        String personNumber = entity.getPersonNumber();
+        if (personNumber != null) {
+            stmt.bindString(22, personNumber);
+        }
+ 
+        String picNumber = entity.getPicNumber();
+        if (picNumber != null) {
+            stmt.bindString(23, picNumber);
+        }
+ 
+        String name_yingze = entity.getName_yingze();
+        if (name_yingze != null) {
+            stmt.bindString(24, name_yingze);
+        }
+ 
+        String icNoHex = entity.getIcNoHex();
+        if (icNoHex != null) {
+            stmt.bindString(25, icNoHex);
+        }
     }
 
     @Override
@@ -229,7 +325,15 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
             cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // now_pic
             cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // fid
             cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // personalizedPermissions
-            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16) // weekly
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // weekly
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // department
+            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // position
+            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // termOfValidity
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // cardStatus
+            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // personNumber
+            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // picNumber
+            cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // name_yingze
+            cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24) // icNoHex
         );
         return entity;
     }
@@ -253,6 +357,14 @@ public class PersonBeanDao extends AbstractDao<PersonBean, Long> {
         entity.setFid(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
         entity.setPersonalizedPermissions(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
         entity.setWeekly(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setDepartment(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setPosition(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
+        entity.setTermOfValidity(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
+        entity.setCardStatus(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setPersonNumber(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
+        entity.setPicNumber(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
+        entity.setName_yingze(cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23));
+        entity.setIcNoHex(cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24));
      }
     
     @Override

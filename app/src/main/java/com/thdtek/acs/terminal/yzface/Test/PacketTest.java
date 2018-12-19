@@ -394,6 +394,12 @@ public class PacketTest {
           */
             Log.e(TAG, "Packet.Verify =" + ByteUtil.bytesToHexString(packet.getVerify()).equals(strVerify));
             Log.e(TAG, "Packet.MagicNumberE =" + ByteUtil.bytesToHexString(packet.getMagicNumberE()).equals(strMagicNumberE));
+
+
+
+
+
+
         }catch (Exception e){
             e.printStackTrace();
         }

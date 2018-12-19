@@ -23,6 +23,7 @@ public class PairThreadThree extends BaseThread {
 
     @Override
     public void handleData(Object faceApi, Object bean) {
+        ThreadManager.getSyncQueueThree().clear();
         PairBean pairBean = (PairBean) bean;
         LogUtils.d(TAG, "=================================多线程比对 3 开始比对=============================== "+pairBean.getType());
         HashMap<Float, PersonBean> pairMap = null;
@@ -43,5 +44,6 @@ public class PairThreadThree extends BaseThread {
             e.printStackTrace();
             LogUtils.e(TAG, "========== 线程 3 存入数据失败 ==========");
         }
+
     }
 }

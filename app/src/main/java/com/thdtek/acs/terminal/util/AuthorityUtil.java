@@ -8,6 +8,7 @@ import com.thdtek.acs.terminal.bean.WeeklyBean;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -41,9 +42,9 @@ public class AuthorityUtil {
 
     }
 
-    private static final long NEVER_NUMBER = 10000L;
-    private static final double NEVER_START_TIME = 111111111.0;
-    private static final double NEVER_END_TIME = 99999999999.0;
+    public static final long NEVER_NUMBER = 10000L;
+    public static final double NEVER_START_TIME = 111111111.0;
+    public static final double NEVER_END_TIME = 99999999999.0;
 
     public static boolean checkCount(long count) {
         LogUtils.d(TAG, "count = " + count);
@@ -69,10 +70,9 @@ public class AuthorityUtil {
         if (startTime == NEVER_START_TIME && endTime == NEVER_END_TIME) {
             return true;
         }
-        LogUtils.d(TAG, "startTime = " + startTime);
-        LogUtils.d(TAG, "endTime = " + endTime);
-        LogUtils.d(TAG, "startPair = " + (startTime == NEVER_START_TIME));
-        LogUtils.d(TAG, "endTimePair = " + (endTime == NEVER_END_TIME));
+        LogUtils.d(TAG, "nowTime = " + (new BigDecimal(nowTime / 1000).toString())
+                + " startTime = " + (new BigDecimal(startTime).toString())
+                + " endTime = " + (new BigDecimal(endTime).toString()));
 
         if (nowTime / 1000 >= startTime && nowTime / 1000 <= endTime) {
             return true;
@@ -145,33 +145,36 @@ public class AuthorityUtil {
             boolean min = false;
             if (Long.parseLong(hhMMOne[0]) == 0 && Long.parseLong(hhMMTwo[0]) == 24 &&
                     Long.parseLong(hhMMOne[1]) == 0 && Long.parseLong(hhMMTwo[1]) == 0) {
-                LogUtils.d(TAG,"====== 全时间通过");
+                LogUtils.d(TAG, "====== 全时间通过");
                 //当前是全时间,通过
                 return true;
+            } else if (Long.parseLong(hhMMOne[0]) == 0 && Long.parseLong(hhMMTwo[0]) == 0 &&
+                    Long.parseLong(hhMMOne[1]) == 0 && Long.parseLong(hhMMTwo[1]) == 0) {
+                LogUtils.d(TAG, "====== 时间00:00 - 00:00 不通过");
             } else {
                 if (Long.parseLong(currentHHMM[0]) == Long.parseLong(hhMMOne[0]) && Long.parseLong(currentHHMM[0]) == Long.parseLong(hhMMTwo[0])) {
                     //例子 15:00 - 15:00,需要判断分钟
                     min = Long.parseLong(currentHHMM[1]) >= Long.parseLong(hhMMOne[1]) && Long.parseLong(currentHHMM[1]) <= Long.parseLong(hhMMTwo[1]);
-                    LogUtils.d(TAG,"====== 开始时间和结束时间相同");
+                    LogUtils.d(TAG, "====== 开始时间和结束时间相同");
                     if (min) {
                         return true;
                     }
-                } else if (Long.parseLong(currentHHMM[0]) == Long.parseLong(hhMMOne[0])&&Long.parseLong(currentHHMM[0])<Long.parseLong(hhMMTwo[0])){
+                } else if (Long.parseLong(currentHHMM[0]) == Long.parseLong(hhMMOne[0]) && Long.parseLong(currentHHMM[0]) < Long.parseLong(hhMMTwo[0])) {
                     //等于开始时间,小于结束时间
-                    LogUtils.d(TAG,"====== 等于开始时间,小于结束时间");
+                    LogUtils.d(TAG, "====== 等于开始时间,小于结束时间");
                     min = Long.parseLong(currentHHMM[1]) >= Long.parseLong(hhMMOne[1]);
                     if (min) {
                         return true;
                     }
                 } else if (Long.parseLong(currentHHMM[0]) > Long.parseLong(hhMMOne[0]) && Long.parseLong(currentHHMM[0]) == Long.parseLong(hhMMTwo[0])) {
                     //大于开始时间,等于结束时间
-                    LogUtils.d(TAG,"====== 大于开始时间,等于结束时间");
+                    LogUtils.d(TAG, "====== 大于开始时间,等于结束时间");
                     min = Long.parseLong(currentHHMM[1]) <= Long.parseLong(hhMMTwo[1]);
                     if (min) {
                         return true;
                     }
                 } else if (Long.parseLong(currentHHMM[0]) > Long.parseLong(hhMMOne[0]) && Long.parseLong(currentHHMM[0]) < Long.parseLong(hhMMTwo[0])) {
-                    LogUtils.d(TAG,"====== 大于开始时间,小于结束时间");
+                    LogUtils.d(TAG, "====== 大于开始时间,小于结束时间");
                     return true;
                 }
             }

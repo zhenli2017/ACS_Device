@@ -1,9 +1,14 @@
 package com.thdtek.acs.terminal.ui.main;
 
+import android.content.Intent;
 import android.os.Message;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.constraint.ConstraintLayout;
+import android.text.TextUtils;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -14,6 +19,8 @@ import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.hwit.HwitManager;
 import com.thdtek.acs.terminal.R;
 import com.thdtek.acs.terminal.base.BaseCameraActivity;
 import com.thdtek.acs.terminal.base.MyApplication;
@@ -22,13 +29,23 @@ import com.thdtek.acs.terminal.bean.PersonBean;
 import com.thdtek.acs.terminal.receiver.DownLoadReceiver;
 import com.thdtek.acs.terminal.receiver.TimeReceiver;
 import com.thdtek.acs.terminal.receiver.WeatherReceiver;
+import com.thdtek.acs.terminal.ui.cameraphoto.CameraPhotoActivity;
+import com.thdtek.acs.terminal.util.AppSettingUtil;
+import com.thdtek.acs.terminal.util.AppUtil;
 import com.thdtek.acs.terminal.util.Const;
+import com.thdtek.acs.terminal.util.DeviceSnUtil;
+import com.thdtek.acs.terminal.util.HWUtil;
+import com.thdtek.acs.terminal.util.LogUtils;
 import com.thdtek.acs.terminal.util.SPUtils;
+import com.thdtek.acs.terminal.util.SwitchConst;
 import com.thdtek.acs.terminal.util.ToastUtil;
 import com.thdtek.acs.terminal.view.CircleFaceView2;
 import com.thdtek.acs.terminal.view.CircleView;
 import com.thdtek.acs.terminal.view.RectView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -78,8 +95,29 @@ public class MainActivity extends BaseCameraActivity {
 
     @Override
     public void initView() {
-
+        String language = Locale.getDefault().toString();
+        ImageView ic_pairing = findViewById(R.id.ic_pairing);
+        LogUtils.d(TAG, "====== 当前系统语言 ====== " + language);
+        if (language.contains(Const.LANGUAGE_EN)) {
+            //英文
+            Glide.with(this).load(R.mipmap.ic_identificaition_en).into(ic_pairing);
+        } else if (language.equals(Const.LANGUAGE_ZH_CN)) {
+            //中文
+            Glide.with(this).load(R.mipmap.ic_pairing).into(ic_pairing);
+        } else if (Const.LANGUAGE_ZH_HK.equals(language) || Const.LANGUAGE_ZH_TW.equals(language)) {
+            //繁体
+            Glide.with(this).load(R.mipmap.ic_fan_ti_pairing).into(ic_pairing);
+        }
+        TextView tvApkVersion = findViewById(R.id.tv_apk_version);
+        tvApkVersion.setText( AppUtil.getAppVersionName(this) + " - " + HWUtil.getIPAddress());
         mViewConnect = findViewById(R.id.view_connect);
+
+        if(SwitchConst.IS_OPEN_YING_ZE){
+            mViewConnect.setVisibility(View.GONE);
+        }else{
+            mViewConnect.setVisibility(View.VISIBLE);
+        }
+//        mViewConnect.setVisibility(SwitchConst.IS_OPEN_SOCKET_MODE ? View.VISIBLE : View.INVISIBLE);
         mViewConnect.setSelected(false);
         mDrawRectView = findViewById(R.id.drawRectView);
         mFrameLayout = findViewById(R.id.frameLayout);
@@ -128,27 +166,26 @@ public class MainActivity extends BaseCameraActivity {
         mTvTimeDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Const.test = Const.test + 0.01f;
-                ToastUtil.showToast(MainActivity.this, "活体推荐值 -> " + Const.test);
             }
         });
         mTvTimeHour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Const.test = Const.test - 0.01f;
-                if (Const.test < 0) {
-                    Const.test = 0;
-                }
-                ToastUtil.showToast(MainActivity.this, "活体推荐值 -> " + Const.test);
+                HWUtil.closeFan();
             }
         });
         mTvTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                HWUtil.openFan();
             }
         });
-
+        if (SwitchConst.IS_OPEN_HTTP_MODE) {
+            mIvWeather.setVisibility(View.GONE);
+            mTvC.setVisibility(View.GONE);
+        }
     }
+
 
     @Override
     protected void onDestroy() {
@@ -257,30 +294,43 @@ public class MainActivity extends BaseCameraActivity {
     }
 
     public void parseFailUi(int code) {
+        String language = Locale.getDefault().getLanguage();
         switch (code) {
             case Const.FACE_PAIR_ERROR_CODE_EXCEPTION:
-                Glide.with(this).load(R.mipmap.ic_unkonw_error).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_error_en : R.mipmap.ic_unkonw_error).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_FACE_FEATURE_FAIL:
-                Glide.with(this).load(R.mipmap.ic_get_face_feature_fail).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_facefeture_error_en : R.mipmap.ic_get_face_feature_fail).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_NOT_LOGIN:
-                Glide.with(this).load(R.mipmap.ic_no_login).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_not_register_en : R.mipmap.ic_no_login).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_NOT_AUTHORITY:
-                Glide.with(this).load(R.mipmap.ic_no_authority).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_no_authority_en : R.mipmap.ic_no_authority).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_NOT_ID_IMAGE:
-                Glide.with(this).load(R.mipmap.ic_id_message_error).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_id_message_error_en : R.mipmap.ic_id_message_error).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_FACE_RECT:
-                Glide.with(this).load(R.mipmap.ic_pair_fail).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_identification_failure_en : R.mipmap.ic_pair_fail).into(mIvPairFail);
                 break;
             case Const.FACE_PAIR_ERROR_CODE_NOT_GUEST_MODE:
-                Glide.with(this).load(R.mipmap.ic_no_guest_mode).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_not_open_guest_mode_en : R.mipmap.ic_not_open_guest_mode).into(mIvPairFail);
+                break;
+            case Const.FACE_PAIR_ERROR_CODE_PAIR_ID_CARD:
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_pair_id_card_en : R.mipmap.ic_pair_id_card).into(mIvPairFail);
                 break;
             default:
-                Glide.with(this).load(R.mipmap.ic_pair_fail).into(mIvPairFail);
+                Glide.with(this).load(language.toLowerCase().contains(Const.LANGUAGE_EN) ?
+                        R.mipmap.ic_identification_failure_en : R.mipmap.ic_pair_fail).into(mIvPairFail);
                 break;
         }
     }

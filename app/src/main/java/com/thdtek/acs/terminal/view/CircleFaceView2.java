@@ -70,6 +70,7 @@ public class CircleFaceView2 extends View {
                     SystemClock.sleep(15);
                     postInvalidate();
                 }
+                LogUtils.e(TAG, "========== circleFaceView2 完结撒花 ==========");
             }
         }).start();
 
@@ -268,6 +269,6 @@ public class CircleFaceView2 extends View {
 
     public void stop() {
         mLoop = false;
-        LogUtils.e(TAG, "========== circleFaceView2 完结撒花 ==========");
+
     }
 }

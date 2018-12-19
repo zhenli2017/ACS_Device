@@ -42,6 +42,12 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
         public final static Property AccordRate = new Property(15, float.class, "accordRate", false, "ACCORD_RATE");
         public final static Property UploadToHttp = new Property(16, boolean.class, "uploadToHttp", false, "UPLOAD_TO_HTTP");
         public final static Property Fid = new Property(17, String.class, "fid", false, "FID");
+        public final static Property Gender = new Property(18, String.class, "gender", false, "GENDER");
+        public final static Property Birthday = new Property(19, String.class, "birthday", false, "BIRTHDAY");
+        public final static Property Location = new Property(20, String.class, "location", false, "LOCATION");
+        public final static Property ValidityTime = new Property(21, String.class, "validityTime", false, "VALIDITY_TIME");
+        public final static Property SigningOrganization = new Property(22, String.class, "signingOrganization", false, "SIGNING_ORGANIZATION");
+        public final static Property Nation = new Property(23, String.class, "nation", false, "NATION");
     };
 
 
@@ -74,7 +80,13 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
                 "\"PERSON_RATE\" REAL NOT NULL ," + // 14: personRate
                 "\"ACCORD_RATE\" REAL NOT NULL ," + // 15: accordRate
                 "\"UPLOAD_TO_HTTP\" INTEGER NOT NULL ," + // 16: uploadToHttp
-                "\"FID\" TEXT);"); // 17: fid
+                "\"FID\" TEXT," + // 17: fid
+                "\"GENDER\" TEXT," + // 18: gender
+                "\"BIRTHDAY\" TEXT," + // 19: birthday
+                "\"LOCATION\" TEXT," + // 20: location
+                "\"VALIDITY_TIME\" TEXT," + // 21: validityTime
+                "\"SIGNING_ORGANIZATION\" TEXT," + // 22: signingOrganization
+                "\"NATION\" TEXT);"); // 23: nation
     }
 
     /** Drops the underlying database table. */
@@ -132,6 +144,36 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
         if (fid != null) {
             stmt.bindString(18, fid);
         }
+ 
+        String gender = entity.getGender();
+        if (gender != null) {
+            stmt.bindString(19, gender);
+        }
+ 
+        String birthday = entity.getBirthday();
+        if (birthday != null) {
+            stmt.bindString(20, birthday);
+        }
+ 
+        String location = entity.getLocation();
+        if (location != null) {
+            stmt.bindString(21, location);
+        }
+ 
+        String validityTime = entity.getValidityTime();
+        if (validityTime != null) {
+            stmt.bindString(22, validityTime);
+        }
+ 
+        String signingOrganization = entity.getSigningOrganization();
+        if (signingOrganization != null) {
+            stmt.bindString(23, signingOrganization);
+        }
+ 
+        String nation = entity.getNation();
+        if (nation != null) {
+            stmt.bindString(24, nation);
+        }
     }
 
     @Override
@@ -183,6 +225,36 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
         if (fid != null) {
             stmt.bindString(18, fid);
         }
+ 
+        String gender = entity.getGender();
+        if (gender != null) {
+            stmt.bindString(19, gender);
+        }
+ 
+        String birthday = entity.getBirthday();
+        if (birthday != null) {
+            stmt.bindString(20, birthday);
+        }
+ 
+        String location = entity.getLocation();
+        if (location != null) {
+            stmt.bindString(21, location);
+        }
+ 
+        String validityTime = entity.getValidityTime();
+        if (validityTime != null) {
+            stmt.bindString(22, validityTime);
+        }
+ 
+        String signingOrganization = entity.getSigningOrganization();
+        if (signingOrganization != null) {
+            stmt.bindString(23, signingOrganization);
+        }
+ 
+        String nation = entity.getNation();
+        if (nation != null) {
+            stmt.bindString(24, nation);
+        }
     }
 
     @Override
@@ -210,7 +282,13 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
             cursor.getFloat(offset + 14), // personRate
             cursor.getFloat(offset + 15), // accordRate
             cursor.getShort(offset + 16) != 0, // uploadToHttp
-            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17) // fid
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // fid
+            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // gender
+            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // birthday
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // location
+            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // validityTime
+            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // signingOrganization
+            cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23) // nation
         );
         return entity;
     }
@@ -235,6 +313,12 @@ public class AccessRecordBeanDao extends AbstractDao<AccessRecordBean, Long> {
         entity.setAccordRate(cursor.getFloat(offset + 15));
         entity.setUploadToHttp(cursor.getShort(offset + 16) != 0);
         entity.setFid(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setGender(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
+        entity.setBirthday(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
+        entity.setLocation(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setValidityTime(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
+        entity.setSigningOrganization(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
+        entity.setNation(cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23));
      }
     
     @Override

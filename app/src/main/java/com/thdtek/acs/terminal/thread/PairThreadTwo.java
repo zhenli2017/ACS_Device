@@ -23,6 +23,7 @@ public class PairThreadTwo extends BaseThread {
 
     @Override
     public void handleData(Object faceApi, Object bean) {
+        ThreadManager.getSyncQueueThree().clear();
         PairBean pairBean = (PairBean) bean;
         LogUtils.d(TAG, "=================================多线程比对 2 开始比对==============================="+pairBean.getType());
         HashMap<Float, PersonBean> pairMap = null;
